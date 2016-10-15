@@ -9,8 +9,9 @@ This package is the **Analytic Engine** in the RunWith-IT stack.
 4. gulp (do via `npm install -g gulp`)
 5. For testing, `npm install -g jasmine`
 6. `npm install -g node-gyp`
-7. `npm install -g fibers`
-8. [Install mongodb](https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-16-04)
+7. `sudo apt-get install libkrb5-dev libgssapi-krb5-2`
+8. `npm install -g fibers`
+9. [Install mongodb](https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-16-04)
 
 ## Instructions (WIP - This is just to test r-statistics)
 1. `npm install -g gulp`
