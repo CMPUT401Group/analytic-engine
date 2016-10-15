@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CMPUT401Group/CMPUT401-RunWith-IT.git"
+    "url": "https://github.com/CMPUT401Group/analytic-engine.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/CMPUT401Group/CMPUT401-RunWith-IT/issues"
+    "url": "https://github.com/CMPUT401Group/analytic-engine/issues"
   },
-  "homepage": "https://github.com/CMPUT401Group/CMPUT401-RunWith-IT#readme",
+  "homepage": "https://github.com/CMPUT401Group/analytic-engine#readme",
   "dependencies": {
     "config": "^1.21.0",
     "express": "^4.14.0",
