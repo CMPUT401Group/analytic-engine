@@ -20,6 +20,8 @@
     "express": "^4.14.0",
     "r-script": "0.0.3",
     "request": "^2.75.0",
+    "sync-request": "^3.0.1",
+    "underscore": "^1.8.3",
     "validate-arguments": "0.0.8"
   },
   "devDependencies": {

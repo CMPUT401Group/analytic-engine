@@ -1,6 +1,6 @@
 import express from 'express';
-import request from 'request';
 
 let app = express();  // TODO: To be used later.
 
-request('')
+// TODO: Place this in a config file.
+let graphiteURL = "http://162.246.157.107";

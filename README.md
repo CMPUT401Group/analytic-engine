@@ -15,6 +15,7 @@ This package is the **Analytic Engine** in the RunWith-IT stack.
 3. `gulp  # This builds the src to the dist directory`
 4. `cd dist`
 5. `node r-adapter.js  # This is a test file and for testing r-statistics with node.`
+6. `npm install -g fibers`
 
 ## Testing
 Tests utilize the jasmine test framework. They should all be placed in _spec/analytic-engine_ directory.
