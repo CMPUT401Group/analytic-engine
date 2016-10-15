@@ -5,6 +5,10 @@ import utility from './utility';
 
 // TODO: Handle response errors.
 
+/**
+ * @class MetricsAPIAdapter
+ * @brief @see https://graphite-api.readthedocs.io/en/latest/api.html#the-metrics-api
+ */
 export default class MetricsAPIAdapter {
     /**
      * Constructor for MetricsAPIAdapter

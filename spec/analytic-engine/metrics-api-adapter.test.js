@@ -1,7 +1,8 @@
+import config from 'config';
+
 import MetricsAPIAdapter from './../../src/metrics-api-adapter';
 
-// TODO: Place this in a config file.
-let graphiteURL = "http://162.246.157.107";
+let graphiteURL = config.get('graphiteURL');
 
 // TODO: Make an integration or acceptance testing folder. This test
 //       is more like an acceptance testing.
