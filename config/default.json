@@ -1,3 +1,4 @@
 {
-  "graphiteURL": "http://162.246.157.107"
+  "graphiteURL": "http://162.246.157.107",
+  "mongodPort": "27017"
 }

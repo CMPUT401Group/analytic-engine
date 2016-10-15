@@ -28,12 +28,12 @@ export default class NonLinearPatternMatching {
         let expectedDataSetCardinality = realDataSets[0].length;
         for (let realDataSet of realDataSets) {
             if (expectedDataSetCardinality !== realDataSet.length) {
-                throw "Check ${className}.error data set. Cardinality must be equal for all data sets.";
+                throw `Check ${className}.error data set. Cardinality must be equal for all data sets.`;
             }
         }
         for (let patternDataSet of patternDataSets) {
             if (expectedDataSetCardinality !== patternDataSet.length) {
-                throw "Check ${className}.error data set. Cardinality must be equal for all data sets.";
+                throw `Check ${className}.error data set. Cardinality must be equal for all data sets.`;
             }
         }
 

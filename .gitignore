@@ -7,3 +7,6 @@ npm-debug.log
 
 # Project.
 /dist/
+
+# This is the mongodb test directory.
+/.data/

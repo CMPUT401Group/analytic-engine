@@ -8,6 +8,8 @@ This package is the **Analytic Engine** in the RunWith-IT stack.
 3. npm (should be installed automatically when node is installed).
 4. gulp (do via `npm install -g gulp`)
 5. For testing, `npm install -g jasmine`
+6. `npm install -g fibers`
+7. [Install mongodb](https://www.digitalocean.com/community/tutorials/how-to-install-mongodb-on-ubuntu-16-04)
 
 ## Instructions (WIP - This is just to test r-statistics)
 1. `npm install -g gulp`
@@ -15,7 +17,6 @@ This package is the **Analytic Engine** in the RunWith-IT stack.
 3. `gulp  # This builds the src to the dist directory`
 4. `cd dist`
 5. `node r-adapter.js  # This is a test file and for testing r-statistics with node.`
-6. `npm install -g fibers`
 
 ## Testing
 Tests utilize the jasmine test framework. They should all be placed in _spec/analytic-engine_ directory.
