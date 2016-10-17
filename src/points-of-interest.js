@@ -3,6 +3,8 @@ import Mongo from 'mongodb';
 import Fiber from 'fibers';
 import assert from 'assert';
 
+import {Pattern, PatternFactory} from './patterns';
+
 let MongoClient = Mongo.MongoClient;
 
 /**
@@ -69,25 +71,23 @@ export default class POI {
     }
 
     /**
-     * @param [
-     *          {
-     *            target: String,
-     *            datapoints: [[Number, Number], ...]
-     *          }, ...
-     *        ] datas Grafana json format for metrics.
+     * Inserts pattern.
+     *
+     * @param {[Pattern]} patterns Array of patterns.
      */
-    insert(datas) {
+    insert(patterns) {
+        assert(_.isArray(patterns), `${POI.name}:insert should be given an Array of ${Pattern.name}.`);
+        assert(patterns.length, `${POI.name}:insert should be given a non-empty Array of ${Pattern.name}.`);
+        assert(patterns[0] instanceof Pattern, `${POI.name}:insert should be given a non-empty Array of ${Pattern.name}.`);
+
         let fiber = Fiber.current;
 
-        // mongo.collection.insertMany modify "datas", which
-        // might cause unexpected changes. The parameter "datas"
-        // must not be modified.
-        let clonedDatas = _.map(datas, _.clone);
+        let serializedPatterns = patterns.map(pattern => pattern.serialize());
 
-        this.poiCollection.insertMany(clonedDatas, (err, result) => {
+        this.poiCollection.insertMany(serializedPatterns, (err, result) => {
             assert.equal(null, err);
-            assert.equal(clonedDatas.length, result.result.n);
-            assert.equal(clonedDatas.length, result.ops.length);
+            assert.equal(serializedPatterns.length, result.result.n);
+            assert.equal(serializedPatterns.length, result.ops.length);
             console.log("POI inserted.");
 
             fiber.run();
@@ -96,16 +96,20 @@ export default class POI {
     }
 
     /**
-     * @returns {Array} All the points of interest.
+     * Gets all points of interest.
+     *
+     * @returns {[Pattern]} Array of patterns.
      */
     findAll() {
         let fiber = Fiber.current;
-        let dataSets = [];
+        let serializedPatterns = [];
         this.poiCollection.find({}).toArray((err, docs) => {
-            dataSets = docs;
+            serializedPatterns = docs;
             fiber.run();
         });
         Fiber.yield();
-        return dataSets;
+
+        let patterns = serializedPatterns.map(serializedPattern => PatternFactory.deserialize(serializedPattern));
+        return patterns;
     }
 }
