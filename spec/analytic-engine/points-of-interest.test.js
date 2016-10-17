@@ -1,5 +1,6 @@
 import config from 'config';
 
+import {Threshold, THRESHOLDRULE, PatternFactory} from '../../src/patterns';
 import POI from './../../src/points-of-interest';
 
 let mongodPort = config.get('mongodPort');
@@ -15,27 +16,22 @@ describe("AnalyticEngine - POI", function() {
 
     afterEach(function() {
         this.poi.removeAll();
+        this.poi.close();
     });
 
     it('insert', function() {
-        let dummyDataSetsFromGraphite = [
+        let expectedThresholdPattern = new Threshold([
             {
-                target:'data-set-1',
-                datapoints: [[1, 0], [2, 1]]
-            },
-            {
-                target:'data-set-2',
-                datapoints: [[2, 0], [3, 1]]
+                target: 'dummy.metric.1',
+                thresholdRule: THRESHOLDRULE.EQUAL,
+                value: 5
             }
-        ];
+        ]);
 
-        this.poi.insert(dummyDataSetsFromGraphite);
+        this.poi.insert([expectedThresholdPattern]);
 
-        // Remove _id field.
-        let allPOI = this.poi.findAll().map(poi => {
-            return { target: poi.target, datapoints: poi.datapoints }
-        });
+        let thresholdPatterns = this.poi.findAll();
 
-        expect(allPOI).toEqual(dummyDataSetsFromGraphite);
+        expect(thresholdPatterns[0]).toEqual(expectedThresholdPattern);
     });
 });
