@@ -69,10 +69,13 @@ export default class POI {
     }
 
     /**
+     * Inserts pattern.
+     *
      * @param [
      *          {
      *            target: String,
-     *            datapoints: [[Number, Number], ...]
+     *            datapoints: [[
+     *            Number, Number], ...]
      *          }, ...
      *        ] datas Grafana json format for metrics.
      */
@@ -96,6 +99,8 @@ export default class POI {
     }
 
     /**
+     * Gets all points of interest.
+     *
      * @returns {Array} All the points of interest.
      */
     findAll() {
