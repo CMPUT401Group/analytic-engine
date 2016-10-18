@@ -1,5 +1,7 @@
 # RunWith-IT Analytic Engine
 
+[![Build Status](http://162.246.157.107:8080/job/analytic-engine-unit-tests/badge/icon)](http://162.246.157.107:8080/job/analytic-engine-unit-tests/)
+
 This package is the **Analytic Engine** in the RunWith-IT stack.
 
 ## Requirements
