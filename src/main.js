@@ -29,8 +29,7 @@ function main() {
     });
     dataOfInterest.forEach(data => {
         data.datapoints = data.datapoints.filter(point => {
-            return !_.isNull(point[0])
-                ;
+            return !_.isNull(point[0]);
         });
     });
 
@@ -51,7 +50,7 @@ function main() {
     console.log(threshold.error(dataOfInterest) == 0);
     console.log('End Testing error***');
 
-    pointsOfInterest.insert(dataOfInterest);
+    pointsOfInterest.insert([threshold]);
     pointsOfInterest.removeAll();
     pointsOfInterest.close();
 }

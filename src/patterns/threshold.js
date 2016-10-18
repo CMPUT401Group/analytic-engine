@@ -1,13 +1,68 @@
 import Enum from 'es6-enum';
 import _ from 'underscore';
+import assert from 'assert';
 
 import Pattern from './pattern';
+import utility from '../utility';
 
-let THRESHOLDRULE = Enum('LESSTHAN', 'LESSTHANEQUAL', 'EQUAL', 'GREATERTHANEQUAL', 'GREATERTHAN');
+const THRESHOLDRULE = Enum('LESSTHAN', 'LESSTHANEQUAL', 'EQUAL', 'GREATERTHANEQUAL', 'GREATERTHAN');
+
+/**
+ * Converts given THRESHOLDRULE to string so we can serialize it in db.
+ * @param {THRESHOLDRULE} thresholdRule A THRESHOLDRULE enum
+ * @returns {String} Serializable string version of the given thresholdRule.
+ * @exception Given an invalid thresholdRule
+ */
+function serializeTHRESHOLDRULE(thresholdRule) {
+    switch (thresholdRule) {
+        case THRESHOLDRULE.LESSTHAN:
+            return 'LESSTHAN';
+        case THRESHOLDRULE.LESSTHANEQUAL:
+            return 'LESSTHANEQUAL';
+        case THRESHOLDRULE.EQUAL:
+            return 'EQUAL';
+        case THRESHOLDRULE.GREATERTHANEQUAL:
+            return 'GREATERTHANEQUAL';
+        case THRESHOLDRULE.GREATERTHAN:
+            return 'GREATERTHAN';
+        default:
+            throw new Error(`Given threshold rule is invalid.`);
+    }
+}
+
+/**
+ * Converts back a string (probably stored from db) to its corresponding THRESHOLDRULE.
+ * @param serializedThresholdRule Serialized THRESHOLDRULE enum string.
+ * @returns {THRESHOLDRULE} The THRESHOLDRULE enum of the string.
+ * @throws exception if given string does not correspond to a THRESHOLDRULE enum.
+ */
+function deserializeTHRESHOLDRULE(serializedThresholdRule) {
+    switch (serializedThresholdRule) {
+        case 'LESSTHAN':
+            return THRESHOLDRULE.LESSTHAN;
+        case 'LESSTHANEQUAL':
+            return THRESHOLDRULE.LESSTHANEQUAL;
+        case 'EQUAL':
+            return THRESHOLDRULE.EQUAL;
+        case 'GREATERTHANEQUAL':
+            return THRESHOLDRULE.GREATERTHANEQUAL;
+        case 'GREATERTHAN':
+            return THRESHOLDRULE.GREATERTHAN;
+        default:
+            throw new Error(`Given threshold rule string: ${serializedThresholdRule} is invalid.`);
+    }
+}
+
+const thresholdRulesDocTemplate = "{" +
+    "  target: String," +
+    "  thresholdRule: THRESHOLDRULE" +
+    "  value: Number" +
+    "}";
 
 /**
  * @class Threshold
- * @brief
+ * @brief A simple pattern that if a specified subset of metrics matched a threshold, the pattern is matched.
+ * @extends Pattern
  */
 class Threshold extends Pattern {
     /**
@@ -24,8 +79,32 @@ class Threshold extends Pattern {
      *        ] thresholdRules Array of threshold rules.
      */
     constructor(thresholdRules) {
-        super();
+        super(Threshold.name);
+
+        assert(_.isArray(thresholdRules), `${Threshold.name} constructor should be given Array of \n  ${thresholdRulesDocTemplate}`);
+        assert(thresholdRules.length > 0, `${Threshold.name} constructor should be given a non empty Array of \n  ${thresholdRulesDocTemplate}`);
+
+        // validate each rule.
+        for (let thresholdRule of thresholdRules) {
+            assert(_.isObject(thresholdRule), `${Threshold.name} constructor: One of the threshold rule is not \n ${thresholdRulesDocTemplate}`);
+            assert(thresholdRule.target, `${Threshold.name} constructor: One of the {threshold rule}.target is not a string.`);
+            assert(
+                thresholdRule.thresholdRule == THRESHOLDRULE.LESSTHAN ||
+                thresholdRule.thresholdRule == THRESHOLDRULE.LESSTHANEQUAL ||
+                thresholdRule.thresholdRule == THRESHOLDRULE.EQUAL ||
+                thresholdRule.thresholdRule == THRESHOLDRULE.GREATERTHANEQUAL ||
+                thresholdRule.thresholdRule == THRESHOLDRULE.GREATERTHAN, `${Threshold.thresholdRule} constructor: One of the {threshold rule}.thresholdRule is not an instance of THRESHOLDRULE.`);
+            assert(_.isNumber(thresholdRule.value), `${Threshold.thresholdRule} constructor: One of the {threshold rule}.value is not a javascript Number.`);
+        }
+
         this.thresholdRules = thresholdRules;
+    }
+
+    /**
+     * @see Pattern.getPattern
+     */
+    getPattern() {
+        return this.thresholdRules;
     }
 
     /**
@@ -103,6 +182,40 @@ class Threshold extends Pattern {
         }
 
         return null;
+    }
+
+    /**
+     * @returns {{pattern: Object, _type: String }} Serialized Threshold pattern.
+     */
+    serialize() {
+        // We don't want to modify this.pattern thus deep Copy it first.
+        let clonedPattern = utility.deepCopy(this.getPattern());
+
+        // Class can't be serialized.
+        clonedPattern.forEach(pattern => {
+            pattern.thresholdRule = serializeTHRESHOLDRULE(pattern.thresholdRule)
+        });
+
+        let serializedPattern = {
+            pattern: clonedPattern,
+            _type: this._type
+        };
+        return serializedPattern;
+    }
+
+    /**
+     * @see Pattern.deserialize
+     * @static
+     * @param {Object} serializedPattern A serialized Threshold pattern.
+     * @returns {Threshold} Threshold instance.
+     */
+    static deserialize(serializedPattern) {
+        // Convert serialized THRESHOLDRULES to THRESHOLDRULES.
+        serializedPattern.pattern.forEach(pattern => {
+            pattern.thresholdRule = deserializeTHRESHOLDRULE(pattern.thresholdRule);
+        });
+
+        return new Threshold(serializedPattern.pattern);
     }
 }
 
