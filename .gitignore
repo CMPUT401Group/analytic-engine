@@ -10,3 +10,7 @@ npm-debug.log
 
 # This is the mongodb test directory.
 /.data/
+NodejsApp1.njsproj
+typings/globals/node/index.d.ts
+typings/globals/node/typings.json
+typings/index.d.ts
