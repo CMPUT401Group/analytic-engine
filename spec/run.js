@@ -1,5 +1,9 @@
 import Jasmine from 'jasmine';
 import Fiber from 'fibers';
+import log from 'loglevel';
+
+// Set log level to "error" so anything lower won't be printed.
+log.setDefaultLevel("error");
 
 function main() {
     var jasmine = new Jasmine();
