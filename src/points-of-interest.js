@@ -2,6 +2,7 @@ import _ from 'underscore';
 import Mongo from 'mongodb';
 import Fiber from 'fibers';
 import assert from 'assert';
+import log from 'loglevel';
 
 import {Pattern, PatternFactory} from './patterns';
 
@@ -35,7 +36,7 @@ export default class POI {
         let fiber = Fiber.current;
         MongoClient.connect(this.dbURL, (err, db) => {
             assert.equal(null, err);
-            console.log("Connected correctly to server.");
+            log.info("Connected correctly to server.");
             this.db = db;
             this.poiCollection = db.collection('poi');
 
@@ -50,7 +51,7 @@ export default class POI {
     close() {
         if (_.isObject(this.db)) {
             this.db.close();
-            console.log("Disconnected correctly from server.");
+            log.info("Disconnected correctly from server.");
             this.db = null;
             this.poiCollection = null;
         }
@@ -64,7 +65,7 @@ export default class POI {
         let fiber = Fiber.current;
         this.poiCollection.drop((err, result) => {
             assert.equal(null, err);
-            console.log("POI dropped.");
+            log.info("POI dropped.");
             fiber.run();
         });
         Fiber.yield();
@@ -88,7 +89,7 @@ export default class POI {
             assert.equal(null, err);
             assert.equal(serializedPatterns.length, result.result.n);
             assert.equal(serializedPatterns.length, result.ops.length);
-            console.log("POI inserted.");
+            log.info("POI inserted.");
 
             fiber.run();
         });
