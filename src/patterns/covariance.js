@@ -1,4 +1,6 @@
-
+import R from 'r-script';
+import Pattern from './pattern';
+import _ from 'underscore';
 
 /**
  * @class Covariance
@@ -15,23 +17,20 @@ class Covariance extends Pattern {
      * @param [
      *          {
      *            target: String,
-     *            covarianceSet: COVARIANCESET
-     *            value: Number
-     *          },
-     *          ...
-     *        ] covarainceSet of values which are to be used for comparison
+     *            covarianceSet: JSON
+     *          }
+     *        ] metricTarget of values which are to be used for comparison
      */
-	constructor(covarianceSet) {
+	constructor(metricTarget) {
         super(Covariance.name);
-
-        this.covarianceSet = covarianceSet;
+        this.metricTarget = metricTarget;
     }
 
     /**
      * @see Pattern.getPattern
      */
     getPattern() {
-        return this.covarianceSet;
+        return this.metricTarget;
     }
 
     /**
@@ -40,6 +39,15 @@ class Covariance extends Pattern {
     error(metrics) {
         
 //TODO: actually send stuff to R and get a covariance value back. Probably return the absolute value of it. 
+		/*
+		// sync
+		var out = R("r-modules/hello-world.R")
+    	.data("hello world", 20)
+    	.callSync();
+		console.log(out);
+
+		*/
+
         return 0
     }
 
@@ -66,7 +74,7 @@ class Covariance extends Pattern {
     /**
      * @see Pattern.deserialize
      * @static
-     * @param {Object} serializedPattern A serialized Threshold pattern.
+     * @param {Object} serializedPattern A serialized covarianceSet pattern.
      * @returns {Covariance} covariance instance.
      */
     static deserialize(serializedPattern) {
@@ -77,14 +85,3 @@ class Covariance extends Pattern {
         return new Covariance(serializedPattern.pattern);
     }
 }
-
-
-
-
-import R from 'r-script';
-
-// sync
-var out = R("r-modules/hello-world.R")
-    .data("hello world", 20)
-    .callSync();
-console.log(out);
