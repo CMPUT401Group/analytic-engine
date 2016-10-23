@@ -44,7 +44,6 @@ class Covariance extends Pattern {
 		var out = R("r-modules/linear-covariance.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.callSync();
-		console.log(out);
 
         return out
     }
