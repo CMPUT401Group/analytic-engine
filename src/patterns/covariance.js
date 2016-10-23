@@ -17,7 +17,7 @@ class Covariance extends Pattern {
      * @param [
      *          {
      *            target: String,
-     *            covarianceSet: JSON
+     *            data: JSON
      *          }
      *        ] metricTarget of values which are to be used for comparison
      */
@@ -39,16 +39,14 @@ class Covariance extends Pattern {
     error(metrics) {
         
 //TODO: actually send stuff to R and get a covariance value back. Probably return the absolute value of it. 
-		/*
+		
 		// sync
-		var out = R("r-modules/hello-world.R")
-    	.data("hello world", 20)
+		var out = R("r-modules/linear-covariance.R")
+    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.callSync();
 		console.log(out);
 
-		*/
-
-        return 0
+        return out
     }
 
 
@@ -61,7 +59,7 @@ class Covariance extends Pattern {
 
         // Class can't be serialized.
         clonedPattern.forEach(pattern => {
-            pattern.covarianceSet = serializeCOVARIANCESET(pattern.covarianceSet)
+            pattern.metricTarget = serializeMETRICTARGET(pattern.metricTarget)
         });
 
         let serializedPattern = {
@@ -79,9 +77,11 @@ class Covariance extends Pattern {
      */
     static deserialize(serializedPattern) {
         serializedPattern.pattern.forEach(pattern => {
-            pattern.covarianceSet = deserializeCOVARIANCESET(pattern.covarianceSet);
+            pattern.metricTarget = deserializeMETRICTARGET(pattern.metricTarget);
         });
 
         return new Covariance(serializedPattern.pattern);
     }
 }
+
+export {Covariance};

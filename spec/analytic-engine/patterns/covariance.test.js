@@ -22,7 +22,21 @@ var metric2 = [
 describe("AnalyticEngine - Patterns - Covariance", function() {
 	it ('constructor setups the Pattern._type', function() {
         let cov = new Covariance(metric1);
-        //expect(covariance._type).toEqual('Covariance');
+        expect(cov._type).toEqual('Covariance');
     });
+
+	it ('getPattern() returns the metric', function() {
+        let cov = new Covariance(metric2);
+        expect(cov.getPattern()).toEqual(metric2);
+    }); 
+
+	it ('error does something', function() {
+        let cov = new Covariance(metric1);
+        //this is really only testing that something comes back from R
+        //we will have to change this
+        expect(cov.error(metric2)).toEqual(2.7778); //I don't know that this number has any value
+    });
+
+
 });
 
