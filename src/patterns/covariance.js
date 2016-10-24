@@ -35,11 +35,12 @@ class Covariance extends Pattern {
 
     /**
      * @see Pattern.error
+     *	this curently requires metrics to be the same timeframe and number of points as the metricTarget
      */
     error(metrics) {
         
-//TODO: actually send stuff to R and get a covariance value back. Probably return the absolute value of it. 
-		
+//TODO: actually send stuff to R and get a covariance value back. Probably return the absolute value of it.
+
 		// sync
 		var out = R("r-modules/linear-covariance.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
