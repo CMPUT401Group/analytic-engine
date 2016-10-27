@@ -1,6 +1,7 @@
 import Enum from 'es6-enum';
 import _ from 'underscore';
 import assert from 'assert';
+import log from 'loglevel';
 
 import Pattern from './pattern';
 import utility from '../utility';
@@ -123,7 +124,7 @@ class Threshold extends Pattern {
         // not all of them is present.
         let dataCardinalityMismatch = metrics.length !== this.thresholdRules.length;
         if (dataCardinalityMismatch) {
-            console.log('Threshold.error - Data Cardinality Mismatch.');
+            log.info('Threshold.error - Data Cardinality Mismatch.');
             thresholdSatisfied = false;
         }
 
