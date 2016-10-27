@@ -1,4 +1,6 @@
-
+import R from 'r-script';
+import Pattern from './pattern';
+import _ from 'underscore';
 
 /**
  * @class Covariance
@@ -15,32 +17,36 @@ class Covariance extends Pattern {
      * @param [
      *          {
      *            target: String,
-     *            covarianceSet: COVARIANCESET
-     *            value: Number
-     *          },
-     *          ...
-     *        ] covarainceSet of values which are to be used for comparison
+     *            data: JSON
+     *          }
+     *        ] metricTarget of values which are to be used for comparison
      */
-	constructor(covarianceSet) {
+	constructor(metricTarget) {
         super(Covariance.name);
-
-        this.covarianceSet = covarianceSet;
+        this.metricTarget = metricTarget;
     }
 
     /**
      * @see Pattern.getPattern
      */
     getPattern() {
-        return this.covarianceSet;
+        return this.metricTarget;
     }
 
     /**
      * @see Pattern.error
+     *	this curently requires metrics to be the same timeframe and number of points as the metricTarget
      */
     error(metrics) {
         
-//TODO: actually send stuff to R and get a covariance value back. Probably return the absolute value of it. 
-        return 0
+
+
+		// sync
+		var out = R("r-modules/linear-correlation.R")
+    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+    	.callSync();
+
+        return out
     }
 
 
@@ -53,7 +59,7 @@ class Covariance extends Pattern {
 
         // Class can't be serialized.
         clonedPattern.forEach(pattern => {
-            pattern.covarianceSet = serializeCOVARIANCESET(pattern.covarianceSet)
+            pattern.metricTarget = serializeMETRICTARGET(pattern.metricTarget)
         });
 
         let serializedPattern = {
@@ -66,25 +72,16 @@ class Covariance extends Pattern {
     /**
      * @see Pattern.deserialize
      * @static
-     * @param {Object} serializedPattern A serialized Threshold pattern.
+     * @param {Object} serializedPattern A serialized covarianceSet pattern.
      * @returns {Covariance} covariance instance.
      */
     static deserialize(serializedPattern) {
         serializedPattern.pattern.forEach(pattern => {
-            pattern.covarianceSet = deserializeCOVARIANCESET(pattern.covarianceSet);
+            pattern.metricTarget = deserializeMETRICTARGET(pattern.metricTarget);
         });
 
         return new Covariance(serializedPattern.pattern);
     }
 }
 
-
-
-
-import R from 'r-script';
-
-// sync
-var out = R("r-modules/hello-world.R")
-    .data("hello world", 20)
-    .callSync();
-console.log(out);
+export {Covariance};

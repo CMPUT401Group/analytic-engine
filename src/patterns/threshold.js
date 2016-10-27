@@ -124,7 +124,9 @@ class Threshold extends Pattern {
         // not all of them is present.
         let dataCardinalityMismatch = metrics.length !== this.thresholdRules.length;
         if (dataCardinalityMismatch) {
+
             log.info('Threshold.error - Data Cardinality Mismatch.');
+
             thresholdSatisfied = false;
         }
 

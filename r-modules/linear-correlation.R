@@ -1,6 +1,6 @@
 #correlation between the two metrics as vectors. 
 
 
-cov(c(input[[1]]),c(input[[2]]))
+cor(c(input[[1]]),c(input[[2]]))
 
 

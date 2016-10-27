@@ -89,6 +89,7 @@ export default class POI {
             assert.equal(null, err);
             assert.equal(serializedPatterns.length, result.result.n);
             assert.equal(serializedPatterns.length, result.ops.length);
+
             log.info("POI inserted.");
 
             fiber.run();
