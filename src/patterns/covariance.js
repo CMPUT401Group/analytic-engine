@@ -39,10 +39,10 @@ class Covariance extends Pattern {
      */
     error(metrics) {
         
-//TODO: actually send stuff to R and get a covariance value back. Probably return the absolute value of it.
+
 
 		// sync
-		var out = R("r-modules/linear-covariance.R")
+		var out = R("r-modules/linear-correlation.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.callSync();
 
