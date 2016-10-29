@@ -49,6 +49,22 @@ class Covariance extends Pattern {
         return out
     }
 
+    covariance(metircs) {
+    			var out = R("r-modules/linear-covariance.R")
+    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+    	.callSync();
+
+        return out
+    }
+
+    correlation(metircs) {
+    			var out = R("r-modules/linear-correlation.R")
+    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+    	.callSync();
+
+        return out
+    }
+
 
     /**
      * @returns {{pattern: Object, _type: String }} Serialized covarianceSet pattern.
