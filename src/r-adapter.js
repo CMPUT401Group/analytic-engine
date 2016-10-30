@@ -12,12 +12,12 @@ var metric1 = [
 var metric2 = [                  
 			{
                 target: 'dummy.metric.2',
-                datapoints: [[0, 2], [1, 3], [2, 4], [3, 5], [4, 6]] //moved +1 in the y axis from metric1
+                datapoints: [[0, 2], [1, 3], [2, 4], [3, 5]] //moved +1 in the y axis from metric1
             }
         ];
 
 // sync
 var out = R("r-modules/linear-covariance.R")
-    .data(metric1, metric2)
+    .data(metric1[0].datapoints, metric2[0].datapoints)
     .callSync();
 console.log(out);

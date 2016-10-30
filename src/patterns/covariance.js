@@ -1,6 +1,7 @@
 import R from 'r-script';
 import Pattern from './pattern';
 import _ from 'underscore';
+import assert from 'assert';
 
 /**
  * @class Covariance
@@ -20,9 +21,12 @@ class Covariance extends Pattern {
      *            data: JSON
      *          }
      *        ] metricTarget of values which are to be used for comparison
+     *
      */
 	constructor(metricTarget) {
         super(Covariance.name);
+        assert(metricTarget.length ==1, "There must only be a single metric to initialize the class");
+        this.cleanNulls(metricTarget[0].datapoints);
         this.metricTarget = metricTarget;
     }
 
@@ -49,20 +53,39 @@ class Covariance extends Pattern {
         return out
     }
 
-    covariance(metircs) {
-    			var out = R("r-modules/linear-covariance.R")
+    covariance(metrics) {
+    	/*//-------------- try to clean the null values and then determine whether the lengths are equal. 
+    	this.cleanNulls(metrics[0].datapoints)
+    	console.log("metrics");
+    	console.log(metrics[0].datapoints.length);
+    	console.log("metricsTarget");
+    	console.log(metricTarget[0].datapoints.length);
+    	//------------------*/
+    	this.cleanNulls(metrics[0].datapoints);
+
+    	var out = R("r-modules/linear-covariance.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.callSync();
 
         return out
     }
 
-    correlation(metircs) {
-    			var out = R("r-modules/linear-correlation.R")
+    correlation(metrics) {
+    	var out = R("r-modules/linear-correlation.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.callSync();
 
         return out
+    }
+
+    //changes all the null values to 0.
+    cleanNulls(datapoints) {
+    	datapoints = datapoints.map(function(datapoint) {
+    		if (!_.isNumber(datapoint[0])) {
+    			datapoint[0] = 0;
+    		}
+    		return 0;
+    	});
     }
 
 

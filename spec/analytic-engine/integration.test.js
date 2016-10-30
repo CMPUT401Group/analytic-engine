@@ -5,13 +5,10 @@ import {Covariance} from './../../src/patterns';
 
 let graphiteURL = config.get('graphiteURL');
 
-// TODO: Make an integration or acceptance testing folder. This test
-//       is more like an acceptance testing.
-
 var renderRes;
 var renderRes2;
 
-describe("AnalyticEngine - RenderAPIAdapter", function() {
+describe("AnalyticEngine - integration", function() {
     beforeEach(function () {
         this.render = new RenderAPIAdapter(graphiteURL);
     });
@@ -31,14 +28,18 @@ describe("AnalyticEngine - RenderAPIAdapter", function() {
             from: '20160920',
             until: '20160921',
         });
-        //expect(renderRes).toBeTruthy();
-        //expect(renderRes[0]).toBeTruthy();
-        //expect(renderRes[0].datapoints).toBeTruthy();
+        expect(renderRes).toBeTruthy();
+        expect(renderRes[0]).toBeTruthy();
+        expect(renderRes[0].datapoints).toBeTruthy();
+        expect(renderRes2[0].datapoints).toBeTruthy();
 
         let cov = new Covariance(renderRes);
-        console.log(cov.error(renderRes2));
-        console.log(renderRes[0].datapoints);
-        //console.log("8888888888888888888888888");
+        console.log("correlation: "); 
+        console.log(cov.correlation(renderRes2));
+        console.log("covariance: "); 
+        console.log(cov.covariance(renderRes2));
+        //console.log((cov.getPattern())[0].datapoints);
+
         //console.log(renderRes2[0].datapoints);
     });
 
