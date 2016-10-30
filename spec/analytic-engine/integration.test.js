@@ -39,7 +39,7 @@ describe("AnalyticEngine - integration", function() {
         console.log("covariance: "); 
         console.log(cov.covariance(renderRes2));
         //console.log((cov.getPattern())[0].datapoints);
-
+        //console.log("*****");
         //console.log(renderRes2[0].datapoints);
     });
 

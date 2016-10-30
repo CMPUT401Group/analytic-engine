@@ -1,21 +1,3 @@
-// example.js
-
-import R from 'r-script';
-
-var metric1 = [
-            {
-                target: 'dummy.metric.1',  
-                datapoints: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]] //straight line
-            }
-        ];
-
-var metric2 = [                  
-			{
-                target: 'dummy.metric.2',
-                datapoints: [[0, 6], [1, 7], [2, 8], [3, 9], [4,10]] //moved +1 in the y axis from metric1
-            }
-        ];
-
 var realDataponts1 = 
 [ [ 0, 1474416010 ],
   [ 0, 1474416020 ],
@@ -17299,11 +17281,3 @@ var realDataponts1 =
   [ 0, 1474415990 ],
   [ 0, 1474416000 ] ];
 
-
-
-
-// sync
-var out = R("r-modules/linear-covariance.R")
-    .data(realDataponts1, realDatapoints2)
-    .callSync();
-console.log(out);
