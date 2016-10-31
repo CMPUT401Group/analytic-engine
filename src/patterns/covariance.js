@@ -43,9 +43,8 @@ class Covariance extends Pattern {
      */
     error(metrics) {
         
-
-
-		// sync
+    	this.cleanNulls(metrics[0].datapoints);
+		
 		var out = R("r-modules/linear-correlation.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.callSync();
@@ -71,6 +70,8 @@ class Covariance extends Pattern {
     }
 
     correlation(metrics) {
+    	this.cleanNulls(metrics[0].datapoints);
+
     	var out = R("r-modules/linear-correlation.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.callSync();

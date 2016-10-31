@@ -17,16 +17,16 @@ describe("AnalyticEngine - integration", function() {
         renderRes = this.render.render({
             target: 'IN.stb-sim.dean.RequestTiming.count',
             format: 'json',
-            from: '20160921',
-            until: '20160922',
+            from: '17:00_20160921',
+            until: '18:00_20160921',
         });
     });
     it("soemthing", function() {
         renderRes2 = this.render.render({
-            target: 'IN.stb-sim.dean.RequestTiming.count',
+            target: 'IN.stb-sim.dean.ImpressionReport.Impressions.count',
             format: 'json',
-            from: '20160920',
-            until: '20160921',
+            from: '17:00_20160919',
+            until: '18:00_20160919',
         });
         expect(renderRes).toBeTruthy();
         expect(renderRes[0]).toBeTruthy();
