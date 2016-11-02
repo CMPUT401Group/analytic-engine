@@ -1,6 +1,7 @@
 #correlation between the two metrics as vectors. 
 
-
-cov(c(input[[1]]),c(input[[2]]))
+x <- do.call(rbind,input[1])[,1] #this gets the first element of each nested list 
+y <- do.call(rbind,input[2])[,1] 
+cov(x,y)
 
 

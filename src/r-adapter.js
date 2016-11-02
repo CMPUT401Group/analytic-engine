@@ -5,21 +5,21 @@ import R from 'r-script';
 var metric1 = [
             {
                 target: 'dummy.metric.1',  
-                datapoints: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5]] //straight line
+                datapoints: [[0, 5], [1, 6], [2, 7], [3, 8], [4, 9]] 
             }
         ];
 
 var metric2 = [                  
 			{
                 target: 'dummy.metric.2',
-                datapoints: [[0, 6], [1, 7], [2, 8], [3, 9], [4,10]] //moved +1 in the y axis from metric1
+                datapoints: [[14, 6], [11, 7], [18, 8], [10, 9], [23,10]]
             }
         ];
 
 
 
 // sync
-var out = R("r-modules/linear-covariance.R")
+var out = R("r-modules/linear-correlation.R")
     .data(metric1[0].datapoints, metric2[0].datapoints)
     .callSync();
 console.log(out);

@@ -3,7 +3,7 @@ import Pattern from './pattern';
 import _ from 'underscore';
 import assert from 'assert';
 
-/**
+/** 
  * @class Covariance
  * @brief Given a time-range of data in a metric, find other metrics which are most linearly correlated to the
  * change observed over that period	
@@ -53,13 +53,7 @@ class Covariance extends Pattern {
     }
 
     covariance(metrics) {
-    	/*//-------------- try to clean the null values and then determine whether the lengths are equal. 
-    	this.cleanNulls(metrics[0].datapoints)
-    	console.log("metrics");
-    	console.log(metrics[0].datapoints.length);
-    	console.log("metricsTarget");
-    	console.log(metricTarget[0].datapoints.length);
-    	//------------------*/
+
     	this.cleanNulls(metrics[0].datapoints);
 
     	var out = R("r-modules/linear-covariance.R")
@@ -70,6 +64,7 @@ class Covariance extends Pattern {
     }
 
     correlation(metrics) {
+        //This will return a negative or positive correlation or 'NA' if one of the metrics is a flat line
     	this.cleanNulls(metrics[0].datapoints);
 
     	var out = R("r-modules/linear-correlation.R")
