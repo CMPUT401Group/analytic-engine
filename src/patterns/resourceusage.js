@@ -1,5 +1,3 @@
-
-//WIP!!!!
 import './threshold'
 //will try to implement this pattern to prevent redundancy
 import Pattern from './pattern'
@@ -8,8 +6,9 @@ import Pattern from './pattern'
 
 class ResourceUsage extends Pattern {
 
-	constructor(Resource){
+	constructor(resourceMetric){
 		super(ResourceUsage.name)
+        this.resourceMetric = resourceMetric
 	}
 //TODO: initialize all the parameters below!
 //

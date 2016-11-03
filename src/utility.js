@@ -74,3 +74,4 @@ class Utility {
 
 let utilityInstance = new Utility();
 export default utilityInstance;
+export {EpochToDate};
