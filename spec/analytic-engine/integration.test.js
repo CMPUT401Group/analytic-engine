@@ -21,7 +21,7 @@ describe("AnalyticEngine - integration", function() {
             until: '18:00_20160921',
         });
     });
-    it("soemthing", function() {
+    it("something", function(done) {
         renderRes2 = this.render.render({
             target: 'IN.stb-sim.dean.ImpressionReport.Impressions.count',
             format: 'json',
@@ -39,10 +39,21 @@ describe("AnalyticEngine - integration", function() {
         console.log("covariance: "); 
         console.log(cov.covariance(renderRes2));
 
-        console.log(cov.correlationAllMetrics());
-        //console.log((cov.getPattern())[0].datapoints);
-        //console.log("*****");
-        //console.log(renderRes2[0].datapoints);
+        this.render.renderAsync({
+            target: 'IN.stb-sim.dean.ImpressionReport.Impressions.count',
+            format: 'json',
+            from: '17:00_20160919',
+            until: '18:00_20160919',
+        },function(result, error){
+            //console.log(result);
+            expect(result).toBeTruthy();
+            expect(result[0]).toBeTruthy();
+            expect(result[0].datapoints).toBeTruthy();
+            done();
+        });
+
+        console.log(cov.correlationAllMetrics( ()=> done() ));// takes forever (>30 min)
+
     });
 
 });

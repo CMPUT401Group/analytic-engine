@@ -3,6 +3,9 @@ import express from 'express';
 import _ from 'underscore';
 import Fiber from 'fibers';
 
+import {Covariance} from './patterns';
+import RenderAPIAdapter from './render-api-adapter';
+
 
 import GraphiteAdapter from './graphite-adapter';
 import POI from './points-of-interest';
@@ -32,6 +35,17 @@ function main() {
     app.listen(3000, function () {
         console.log('Example app listening on port 3000!')
     })
+    
+    var render = new RenderAPIAdapter(graphiteURL);
+    var renderRes = render.render({
+            target: 'IN.stb-sim.dean.RequestTiming.count',
+            format: 'json',
+            from: '17:00_20160921',
+            until: '18:00_20160921',
+        });
+    var cov = new Covariance(renderRes);
+
+    console.log(cov.correlationAllMetrics( ()=> done() ));// takes forever (>30 min)
 }
 
 // Here we run the main executable.

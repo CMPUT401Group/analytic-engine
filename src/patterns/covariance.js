@@ -5,6 +5,7 @@ import assert from 'assert';
 import config from 'config';
 import MetricsAPIAdapter from './../metrics-api-adapter';
 import RenderAPIAdapter from './../render-api-adapter';
+import async from 'async';
 
 let graphiteURL = config.get('graphiteURL');
 
@@ -38,6 +39,7 @@ class Covariance extends Pattern {
         this.metricTarget = metricTarget;
         this.startTime = (metricTarget[0].datapoints)[0][1];
         this.endTime = (metricTarget[0].datapoints)[dataLength-1][1];
+        this.metricDict = {};
     }
 
     /**
@@ -93,9 +95,8 @@ class Covariance extends Pattern {
     }
 
 /*performs a linear correlation with all metrics at the same time period as the original
-Returns a dictionary {"key":value} : {"metric name": correlation vaue} */
-    correlationAllMetrics(){
-        var metricDict = {};
+populates a dictionary: {"metric name": correlation vaue} */
+    correlationAllMetrics(callback){
         //TODO: move these class initializations to be static objects somewhere for better performance
         var metricAPI = new MetricsAPIAdapter(graphiteURL); 
         var render = new RenderAPIAdapter(graphiteURL);
@@ -106,7 +107,7 @@ and convert the seconds since Jan 1, 1970 format to the render api format*/
         var end = this.getEndTime();
         var covObj = this;
 
-        metricDict = allMetrics.map(function(metric){
+        /*this.metricDict = allMetrics.map(function(metric){
             let renderRes = render.render({
                 target: metric,
                 format: 'json',
@@ -118,7 +119,36 @@ and convert the seconds since Jan 1, 1970 format to the render api format*/
             metricDict[metric] = cor;
             return 0
         });
-        return metricDict;
+        return 0; */
+
+        async.forEach(Object.keys(allMetrics), function(metric, callback) {
+            console.log('interation');
+            let renderRes = render.renderAsync({
+                target: metric,
+                format: 'json',
+                from: '17:00_20160919', //TODO: use start variable after it gets processed into correct format.
+                until: '18:00_20160919', //TODO: use end variable
+            }, function(result, error){
+
+                console.log('_______________result: ',result);
+                let cor = covObj.correlation(result);
+                metricDict[metric] = cor;
+
+            });
+            //console.log(renderRes);
+            //let cor = covObj.correlation(renderRes);
+            //metricDict[metric] = cor;
+
+            }, function(err) {
+                    if(err){
+                        throw err;
+                    }
+                //success case here
+                callback();
+
+                }
+        );
+
     }
 
     //changes all the null values to 0.

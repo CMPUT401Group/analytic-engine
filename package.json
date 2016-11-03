@@ -18,6 +18,7 @@
   "homepage": "https://github.com/CMPUT401Group/analytic-engine#readme",
   "dependencies": {
     "assert": "^1.4.1",
+    "async": "^2.1.2",
     "config": "^1.21.0",
     "deep-equal": "^1.0.1",
     "es6-enum": "^1.1.0",
@@ -27,7 +28,7 @@
     "mongo-sync": "^2.0.1",
     "mongodb": "^2.2.10",
     "r-script": "0.0.3",
-    "request": "^2.75.0",
+    "request": "^2.76.0",
     "sync-request": "^3.0.1",
     "underscore": "^1.8.3",
     "validate-arguments": "0.0.8"
