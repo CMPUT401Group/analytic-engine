@@ -24,7 +24,7 @@ function EpochToDate(Unix_Timestamp) {
     }
 
     //concatenates '0' to get proper formatting for render api
-    var hour = time_stamp.getHours();
+    var hour = time_stamp.getUTCHours();
     if (hour < 10) {
         hour = '0' + hour;
     }

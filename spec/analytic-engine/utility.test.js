@@ -13,7 +13,7 @@ describe("AnalyticEngine - Utility", function() {
 
     it("Epoch to UTC date format for render api adapter - Convert UNIX time to UTC.", function () {
         let UNIXTimestamp = 1451602800
-        let expected_APIFormat = '16:00:00_20151231'
+        let expected_APIFormat = '23:00:00_20151231'
         expect(EpochToDate(UNIXTimestamp)).toBe(expected_APIFormat)
 
     });
