@@ -32,6 +32,7 @@ export default class RenderAPIAdapter {
             if (!error && response.statusCode == 200) {
                 body = JSON.parse(body);
             }
+            
             //console.log(error,response.statusCode);
             callback(body, error);
         });

@@ -2,10 +2,10 @@ import config from 'config';
 import express from 'express';
 import _ from 'underscore';
 import Fiber from 'fibers';
+import moment from 'moment';
 
 import {Covariance} from './patterns';
 import RenderAPIAdapter from './render-api-adapter';
-
 
 import GraphiteAdapter from './graphite-adapter';
 import POI from './points-of-interest';
@@ -45,6 +45,12 @@ function main() {
         });
     var cov = new Covariance(renderRes);
 
+    //1474477210 = 17:00_20160921 
+    //var date = moment.unix(1474477210);
+    //console.log(date.utc().format('HH:mm_YYYY:MM:DD'));
+
+
+
     let fiber = Fiber.current;
     cov.correlationAllMetrics(function(){
         fiber.run();
@@ -53,7 +59,10 @@ function main() {
 
     //at the 15 min mark we get tons of ECONNRESET. Need to handle this and repeat the request. 
 
-    console.log(cov.getMetricDict());
+    console.log(cov.getMetricDict()); 
+
+
+
 }
 
 // Here we run the main executable.

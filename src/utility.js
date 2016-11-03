@@ -41,7 +41,7 @@ function EpochToDate(Unix_Timestamp) {
         sec = '0' + sec;
     }
     // returns string of proper date formatting
-    var time = hour + ':' + min + ':' + sec + '_' + year + '' + month + '' + date;
+    var time = hour + ':' + min + '_' + year + '' + month + '' + date;
     return time;
 
 }

@@ -6,6 +6,8 @@ import config from 'config';
 import MetricsAPIAdapter from './../metrics-api-adapter';
 import RenderAPIAdapter from './../render-api-adapter';
 import async from 'async';
+import {EpochToDate} from './../utility';
+import moment from 'moment';
 
 let graphiteURL = config.get('graphiteURL');
 
@@ -108,19 +110,18 @@ populates a dictionary: {"metric name": correlation vaue} */
         var metricAPI = new MetricsAPIAdapter(graphiteURL); 
         var render = new RenderAPIAdapter(graphiteURL);
         var allMetrics = metricAPI.findAll();
-/*TODO: either get the timeframe from graphana and save the attributes then, or grab them from the metric 
-and convert the seconds since Jan 1, 1970 format to the render api format*/
-        var start = this.getStartTime();
-        var end = this.getEndTime();
-        var self = this;
 
+        var start = moment.unix(this.getStartTime()).utc().format('HH:mm_YYYYMMDD');
+        var end = moment.unix(this.getEndTime()).utc().format('HH:mm_YYYYMMDD');
+        var self = this;
+        console.log(start);
         async.forEach(Object.keys(allMetrics), function(metricIndex, callback) {
             let metricName = allMetrics[metricIndex];
             render.renderAsync({
                 target: metricName,
                 format: 'json',
-                from: '17:00_20160919', //TODO: use start variable after it gets processed into correct format.
-                until: '18:00_20160919', //TODO: use end variable
+                from: start, //TODO: use start variable after it gets processed into correct format.
+                until: end, //TODO: use end variable
             }, function(result, error){
 
                 if(error){

@@ -25,6 +25,7 @@
     "express": "^4.14.0",
     "fibers": "^1.0.15",
     "loglevel": "^1.4.1",
+    "moment": "^2.15.2",
     "mongo-sync": "^2.0.1",
     "mongodb": "^2.2.10",
     "r-script": "0.0.3",
