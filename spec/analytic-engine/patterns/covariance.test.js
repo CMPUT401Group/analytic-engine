@@ -46,22 +46,29 @@ var metric6 = [
         ];
 
 describe("AnalyticEngine - Patterns - Covariance", function() {
+/*------------------------------------------------------------------------
+    contructor and simple get/sets
+------------------------------------------------------------------------*/
+
 	it ('constructor setups the Pattern._type', function() {
         let cov = new Covariance(metric1);
         expect(cov._type).toEqual('Covariance');
     });
-
-	it ('getPattern() returns the metric', function() {
-        let cov = new Covariance(metric2);
-        expect(cov.getPattern()).toEqual(metric2);
+	it ('getting attributes works', function() {
+        let cov = new Covariance(metric4);
+        expect(cov.getPattern()).toEqual(metric4);
+        expect(cov.getStartTime()).toEqual(2);
+        expect(cov.getEndTime()).toEqual(6);
     }); 
 
+/*------------------------------------------------------------------------
+    correlation and covariance
+------------------------------------------------------------------------*/
 	it ('complete correlation', function() {
         let cov = new Covariance(metric1);
         expect(cov.correlation(metric2)).toEqual(1.0); 
         //this is perfectly linearly correlated but moved +1
     });
-
 	it ('negative correlation', function() {
         let cov = new Covariance(metric1);
         expect(cov.correlation(metric5)).toEqual(-1); 
@@ -74,6 +81,28 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
         let cov = new Covariance(metric1);
         expect(cov.covariance(metric1)).toEqual(2.5); //I have not checked this by hand. 
     });
+    it ('negative covariance', function() {
+        let cov = new Covariance(metric1);
+        expect(cov.covariance(metric5)).toEqual(-2.5); 
+    });
+    it ('flat line covariance', function() {
+        let cov = new Covariance(metric1);
+        expect(cov.covariance(metric6)).toEqual(0); 
+    });
+
+//the following tests are using the metric and render APIs (they are not true unit tests!) 
+//Moved this to integration test because it needs API input as well. 
+/*
+    it ('check all metrics for correlation', function() {
+        let cov = new Covariance(metric1);
+        console.log(cov.correlationAllMetrics());
+        //expect(cov.covariance(metric6)).toEqual(0); 
+    });
+*/
+
+/*------------------------------------------------------------------------
+    data manipulation/sanitization
+------------------------------------------------------------------------*/
 
 	it ('remove nulls', function() {
         let cov = new Covariance(metric3);
@@ -81,7 +110,6 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
         expect(metric3[0].datapoints).toEqual(metric4[0].datapoints);
 
     })
-
 
 });
 
