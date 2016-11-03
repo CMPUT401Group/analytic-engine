@@ -52,7 +52,7 @@ describe("AnalyticEngine - integration", function() {
             done();
         });
 
-        console.log(cov.correlationAllMetrics( ()=> done() ));// takes forever (>30 min)
+        //console.log(cov.correlationAllMetrics( ()=> done() ));// takes forever (>30 min)
 
     });
 

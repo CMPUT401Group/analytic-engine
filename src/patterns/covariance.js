@@ -39,7 +39,10 @@ class Covariance extends Pattern {
         this.metricTarget = metricTarget;
         this.startTime = (metricTarget[0].datapoints)[0][1];
         this.endTime = (metricTarget[0].datapoints)[dataLength-1][1];
-        this.metricDict = {};
+        this.metricDict = {}; 
+        /* TODO: consider adding a list of errors from anaysis as another class attribute
+        the metric dict might contain an object with a number of attributes corresponding to different types
+        of correlation */
     }
 
     /**
@@ -121,7 +124,7 @@ and convert the seconds since Jan 1, 1970 format to the render api format*/
             }, function(result, error){
 
                 if(error){
-                    console.log(metricName, error);
+                    console.log(metricName, error); //TODO: do something besides print these errors
                 }
                 else{
                     try {

@@ -51,6 +51,8 @@ function main() {
     });// takes forever (>30 min) 
     Fiber.yield();
 
+    //at the 15 min mark we get tons of ECONNRESET. Need to handle this and repeat the request. 
+
     console.log(cov.getMetricDict());
 }
 
