@@ -21,6 +21,8 @@ describe("AnalyticEngine - MetricsAPIAdapter", function() {
     });
 
     it("findAll - ensure @see https://graphite-api.readthedocs.io/en/latest/api.html#metrics-index-json", function() {
-        expect(this.metrics.findAll().length).toBeTruthy();
+        var allMetrics = this.metrics.findAll();
+        expect(allMetrics.length).toBeTruthy();
+        //console.log(allMetrics.length);
     });
 });

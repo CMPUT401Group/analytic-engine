@@ -2,6 +2,12 @@ import R from 'r-script';
 import Pattern from './pattern';
 import _ from 'underscore';
 import assert from 'assert';
+import config from 'config';
+import MetricsAPIAdapter from './../metrics-api-adapter';
+import RenderAPIAdapter from './../render-api-adapter';
+import async from 'async';
+
+let graphiteURL = config.get('graphiteURL');
 
 /** 
  * @class Covariance
@@ -24,10 +30,19 @@ class Covariance extends Pattern {
      *
      */
 	constructor(metricTarget) {
-        super(Covariance.name);
+        super(Covariance.name)
         assert(metricTarget.length ==1, "There must only be a single metric to initialize the class");
-        this.cleanNulls(metricTarget[0].datapoints);
+        this.cleanNulls(metricTarget[0].datapoints); //change all null values to 0 for later processing in R
+
+        //set class attributes
+        let dataLength = metricTarget[0].datapoints.length;
         this.metricTarget = metricTarget;
+        this.startTime = (metricTarget[0].datapoints)[0][1];
+        this.endTime = (metricTarget[0].datapoints)[dataLength-1][1];
+        this.metricDict = {}; 
+        /* TODO: consider adding a list of errors from anaysis as another class attribute
+        the metric dict might contain an object with a number of attributes corresponding to different types
+        of correlation */
     }
 
     /**
@@ -35,6 +50,18 @@ class Covariance extends Pattern {
      */
     getPattern() {
         return this.metricTarget;
+    }
+
+    getStartTime() {
+        return this.startTime;
+    }
+
+    getEndTime() {
+        return this.endTime;
+    }
+
+    getMetricDict() {
+        return this.metricDict;
     }
 
     /**
@@ -72,6 +99,55 @@ class Covariance extends Pattern {
     	.callSync();
 
         return out
+    }
+
+/*performs a linear correlation with all metrics at the same time period as the original
+populates a dictionary: {"metric name": correlation vaue} */
+    correlationAllMetrics(callback){
+        //TODO: move these class initializations to be static objects somewhere for better performance
+        var metricAPI = new MetricsAPIAdapter(graphiteURL); 
+        var render = new RenderAPIAdapter(graphiteURL);
+        var allMetrics = metricAPI.findAll();
+/*TODO: either get the timeframe from graphana and save the attributes then, or grab them from the metric 
+and convert the seconds since Jan 1, 1970 format to the render api format*/
+        var start = this.getStartTime();
+        var end = this.getEndTime();
+        var self = this;
+
+        async.forEach(Object.keys(allMetrics), function(metricIndex, callback) {
+            let metricName = allMetrics[metricIndex];
+            render.renderAsync({
+                target: metricName,
+                format: 'json',
+                from: '17:00_20160919', //TODO: use start variable after it gets processed into correct format.
+                until: '18:00_20160919', //TODO: use end variable
+            }, function(result, error){
+
+                if(error){
+                    console.log(metricName, error); //TODO: do something besides print these errors
+                }
+                else{
+                    try {
+                        let cor = self.correlation(result);
+                        self.metricDict[metricName] = cor;
+                    }catch(e){
+                        console.log(metricName, result.length, e);
+                }
+            }
+            });
+            //console.log(renderRes);
+            //let cor = covObj.correlation(renderRes);
+            //metricDict[metric] = cor;
+
+            }, function(err) {
+                    if(err){
+                        throw err;
+                    }
+                //success case here
+                callback(0);
+                console.log(self.metricDict);
+                }
+        );
     }
 
     //changes all the null values to 0.
