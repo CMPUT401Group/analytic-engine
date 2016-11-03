@@ -9,7 +9,7 @@ import RenderAPIAdapter from './render-api-adapter';
 
 import GraphiteAdapter from './graphite-adapter';
 import POI from './points-of-interest';
-import {THRESHOLDRULE, Threshold} from './patterns/threshold';
+//import {THRESHOLDRULE, Threshold} from './patterns/threshold';
 
 // This will be the main executable.
 function main() {
@@ -18,7 +18,7 @@ function main() {
     let graphiteURL = config.get('graphiteURL');
     let mongodPort = config.get('mongodPort');
 
-    let graphiteAdapter = new GraphiteAdapter(graphiteURL);
+    /*let graphiteAdapter = new GraphiteAdapter(graphiteURL);
     let pointsOfInterest = new POI(mongodPort, 'app');
 
     pointsOfInterest.open();
@@ -34,7 +34,7 @@ function main() {
 
     app.listen(3000, function () {
         console.log('Example app listening on port 3000!')
-    })
+    }) */
     
     var render = new RenderAPIAdapter(graphiteURL);
     var renderRes = render.render({
@@ -45,7 +45,13 @@ function main() {
         });
     var cov = new Covariance(renderRes);
 
-    console.log(cov.correlationAllMetrics( ()=> done() ));// takes forever (>30 min)
+    let fiber = Fiber.current;
+    cov.correlationAllMetrics(function(){
+        fiber.run();
+    });// takes forever (>30 min) 
+    Fiber.yield();
+
+    console.log(cov.getMetricDict());
 }
 
 // Here we run the main executable.

@@ -57,6 +57,10 @@ class Covariance extends Pattern {
         return this.endTime;
     }
 
+    getMetricDict() {
+        return this.metricDict;
+    }
+
     /**
      * @see Pattern.error
      *	this curently requires metrics to be the same timeframe and number of points as the metricTarget
@@ -105,35 +109,28 @@ populates a dictionary: {"metric name": correlation vaue} */
 and convert the seconds since Jan 1, 1970 format to the render api format*/
         var start = this.getStartTime();
         var end = this.getEndTime();
-        var covObj = this;
+        var self = this;
 
-        /*this.metricDict = allMetrics.map(function(metric){
-            let renderRes = render.render({
-                target: metric,
-                format: 'json',
-                from: '17:00_20160919', //TODO: use start variable after it gets processed into correct format.
-                until: '18:00_20160919', //TODO: use end variable
-            });
-            //console.log(renderRes);
-            let cor = covObj.correlation(renderRes);
-            metricDict[metric] = cor;
-            return 0
-        });
-        return 0; */
-
-        async.forEach(Object.keys(allMetrics), function(metric, callback) {
-            console.log('interation');
-            let renderRes = render.renderAsync({
-                target: metric,
+        async.forEach(Object.keys(allMetrics), function(metricIndex, callback) {
+            let metricName = allMetrics[metricIndex];
+            render.renderAsync({
+                target: metricName,
                 format: 'json',
                 from: '17:00_20160919', //TODO: use start variable after it gets processed into correct format.
                 until: '18:00_20160919', //TODO: use end variable
             }, function(result, error){
 
-                console.log('_______________result: ',result);
-                let cor = covObj.correlation(result);
-                metricDict[metric] = cor;
-
+                if(error){
+                    console.log(metricName, error);
+                }
+                else{
+                    try {
+                        let cor = self.correlation(result);
+                        self.metricDict[metricName] = cor;
+                    }catch(e){
+                        console.log(metricName, result.length, e);
+                }
+            }
             });
             //console.log(renderRes);
             //let cor = covObj.correlation(renderRes);
@@ -144,11 +141,10 @@ and convert the seconds since Jan 1, 1970 format to the render api format*/
                         throw err;
                     }
                 //success case here
-                callback();
-
+                callback(0);
+                console.log(self.metricDict);
                 }
         );
-
     }
 
     //changes all the null values to 0.
