@@ -92,7 +92,6 @@ export default class POI {
 
             log.info("POI inserted.");
 
-
             fiber.run();
         });
         Fiber.yield();
