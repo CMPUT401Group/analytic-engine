@@ -97,6 +97,24 @@ export default class POI {
         Fiber.yield();
     }
 
+    insertAsync(patterns) {
+        assert(_.isArray(patterns), `${POI.name}:insert should be given an Array of ${Pattern.name}.`);
+        assert(patterns.length, `${POI.name}:insert should be given a non-empty Array of ${Pattern.name}.`);
+        assert(patterns[0] instanceof Pattern, `${POI.name}:insert should be given a non-empty Array of ${Pattern.name}.`);
+
+        let serializedPatterns = patterns.map(pattern => pattern.serialize());
+
+        return new Promise((resolve, reject) => {
+            this.poiCollection.insertMany(serializedPatterns, (err, result) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(result);
+                }
+            });
+        });
+    }
+
     /**
      * Gets all points of interest.
      *
@@ -136,7 +154,7 @@ export default class POI {
      */
     findAllThresholdAsync() {
         return new Promise((resolve, reject) => {
-            this.poiCollection.find({name: 'Threshold'}).toArray((err, docs) => {
+            this.poiCollection.find({ _type: "Threshold" }).toArray((err, docs) => {
                 if (err) {
                     reject(err);
                 } else {

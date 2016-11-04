@@ -2,6 +2,7 @@ import config from 'config';
 import express from 'express';
 import _ from 'underscore';
 import Fiber from 'fibers';
+import bodyParser from 'body-parser';
 
 import {Covariance} from './patterns';
 import RenderAPIAdapter from './render-api-adapter';
@@ -14,6 +15,11 @@ import {THRESHOLDRULE, Threshold} from './patterns/threshold';
 // This will be the main executable.
 function main() {
   let app = express();  // TODO: To be used later.
+
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
+    extended: true
+  }));
 
   let graphiteURL = config.get('graphiteURL');
   let mongodPort = config.get('mongodPort');
@@ -53,9 +59,7 @@ function main() {
     });
 
     let threshold = new Threshold(rawThreshold);
-    pointsOfInterest.insert([threshold]);
-
-    res.send('Success');
+    pointsOfInterest.insertAsync([threshold]).then(() => res.send('Success'));
   });
 
   app.get('/pattern/threshold', (req, res) => {
