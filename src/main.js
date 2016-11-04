@@ -17,6 +17,7 @@ function main() {
 
   let graphiteURL = config.get('graphiteURL');
   let mongodPort = config.get('mongodPort');
+  let nodejsPort = config.get('nodejsPort');
 
   let graphiteAdapter = new GraphiteAdapter(graphiteURL);
   let pointsOfInterest = new POI(mongodPort, 'app');
@@ -40,8 +41,8 @@ function main() {
     res.json([]);
   });
 
-  app.listen(3000, function () {
-    console.log('Example app listening on port 3000!')
+  app.listen(nodejsPort, function () {
+    console.log('Example app listening on port: ',nodejsPort);
   });
 }
 
