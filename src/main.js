@@ -29,7 +29,7 @@ function main() {
   });
 
   app.get('/pattern/threshold', (req, res) => {
-    pointsOfInterest.findAllThresholdAsync.then(thresholds => res.json(thresholds));
+    pointsOfInterest.findAllThresholdAsync().then(thresholds => res.json(thresholds));
   });
 
   app.get('/pattern', (req, res) => {
