@@ -25,7 +25,7 @@ function main() {
   pointsOfInterest.open();
 
   app.post('/pattern/threshold', (req, res) => {
-    res.json(req);
+    req.body.
   });
 
   app.get('/pattern/threshold', (req, res) => {
