@@ -160,12 +160,12 @@ TODO: We can look at interpolating points*/
         );
     }
 
-    metricDeviation(metrics){
+    metricDeviation(metrics, stDevMulti){
 /*check a given metric in a large timeframe and see if it deviates significantly in that timespan*/
         this.cleanNulls(metrics[0].datapoints);
         
         var out = R("r-modules/deviation.R")
-        .data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+        .data(this.metricTarget[0].datapoints, stDevMulti)
         .callSync();
 
         return out
