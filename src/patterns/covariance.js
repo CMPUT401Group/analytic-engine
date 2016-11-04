@@ -6,6 +6,8 @@ import config from 'config';
 import MetricsAPIAdapter from './../metrics-api-adapter';
 import RenderAPIAdapter from './../render-api-adapter';
 import async from 'async';
+import {EpochToDate} from './../utility';
+import moment from 'moment';
 
 let graphiteURL = config.get('graphiteURL');
 
@@ -39,7 +41,8 @@ class Covariance extends Pattern {
         this.metricTarget = metricTarget;
         this.startTime = (metricTarget[0].datapoints)[0][1];
         this.endTime = (metricTarget[0].datapoints)[dataLength-1][1];
-        this.metricDict = {};
+        this.metricDict = {}; 
+        this.errorDict = {};
     }
 
     /**
@@ -99,25 +102,32 @@ class Covariance extends Pattern {
     }
 
 /*performs a linear correlation with all metrics at the same time period as the original
-populates a dictionary: {"metric name": correlation vaue} */
-    correlationAllMetrics(callback){
+populates a dictionary metricDict: {"metric name": correlation vaue}
+Metrics which returned an error are recorded with their error in ErrorDict. Most of these are for 
+'incompatible dimentions'. 
+TODO: We can look at interpolating points*/
+    correlationAllMetrics(callback1){
         //TODO: move these class initializations to be static objects somewhere for better performance
         var metricAPI = new MetricsAPIAdapter(graphiteURL); 
         var render = new RenderAPIAdapter(graphiteURL);
         var allMetrics = metricAPI.findAll();
-/*TODO: either get the timeframe from graphana and save the attributes then, or grab them from the metric 
-and convert the seconds since Jan 1, 1970 format to the render api format*/
-        var start = this.getStartTime();
-        var end = this.getEndTime();
-        var self = this;
 
-        async.forEach(Object.keys(allMetrics), function(metricIndex, callback) {
+        /*var smallTest = [];
+        smallTest.push(allMetrics[0]);
+        smallTest.push(allMetrics[1]);
+        smallTest.push(allMetrics[2]);
+        console.log('number of metrics: ',smallTest.length); */
+
+        var start = moment.unix(this.getStartTime()).utc().format('HH:mm_YYYYMMDD');
+        var end = moment.unix(this.getEndTime()).utc().format('HH:mm_YYYYMMDD');
+        var self = this;
+        async.forEach(Object.keys(allMetrics), function(metricIndex, callback2) {
             let metricName = allMetrics[metricIndex];
             render.renderAsync({
                 target: metricName,
                 format: 'json',
-                from: '17:00_20160919', //TODO: use start variable after it gets processed into correct format.
-                until: '18:00_20160919', //TODO: use end variable
+                from: start,
+                until: end,     
             }, function(result, error){
 
                 if(error){
@@ -128,22 +138,25 @@ and convert the seconds since Jan 1, 1970 format to the render api format*/
                         let cor = self.correlation(result);
                         self.metricDict[metricName] = cor;
                     }catch(e){
-                        console.log(metricName, result.length, e);
+                        //console.log(metricName, result.length, e);
+                        self.errorDict[metricName] = e;
+                    }
+
                 }
-            }
+
+            callback2();
             });
             //console.log(renderRes);
             //let cor = covObj.correlation(renderRes);
             //metricDict[metric] = cor;
 
-            }, function(err) {
+        }, function(err) {
                     if(err){
                         throw err;
                     }
                 //success case here
-                callback(0);
-                console.log(self.metricDict);
-                }
+                callback1(0);
+            }
         );
     }
 

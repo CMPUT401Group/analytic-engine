@@ -2,6 +2,7 @@ import request from 'sync-request';
 import _ from 'underscore';
 import {default as requestAsync} from 'request';
 import utility from './utility';
+import requestretry from 'requestretry'
 
 // TODO: Handle response errors.
 
@@ -28,10 +29,11 @@ export default class RenderAPIAdapter {
 
     renderAsync(options, callback) {
         let urlParams = utility.objToURLParam(options);
-        requestAsync(`${this.graphiteURL}/render?${urlParams}`, function (error, response, body) {
+        requestretry(`${this.graphiteURL}/render?${urlParams}`, function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 body = JSON.parse(body);
             }
+           // if (error.code =='ECONNRESET') {}
             //console.log(error,response.statusCode);
             callback(body, error);
         });
