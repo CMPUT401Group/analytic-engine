@@ -20,6 +20,6 @@ var metric2 = [
 
 // sync
 var out = R("r-modules/deviation.R")
-    .data(metric1[0].datapoints)
+    .data(metric1[0].datapoints,1)
     .callSync();
 console.log(out);
