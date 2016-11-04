@@ -50,16 +50,19 @@ function main() {
     //console.log(date.utc().format('HH:mm_YYYY:MM:DD'));
 
 
-
+    console.log("before");
     let fiber = Fiber.current;
     cov.correlationAllMetrics(function(){
+        console.log('before fiber.run');
         fiber.run();
+        //console.log("after fibder.run ERROR");
     });// takes forever (>30 min) 
     Fiber.yield();
 
     //at the 15 min mark we get tons of ECONNRESET. Need to handle this and repeat the request. 
 
     console.log(cov.getMetricDict()); 
+    //console.log("finally");
 
 
 
