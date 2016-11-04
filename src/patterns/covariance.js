@@ -160,6 +160,18 @@ TODO: We can look at interpolating points*/
         );
     }
 
+    metricDeviation(metrics){
+/*check a given metric in a large timeframe and see if it deviates significantly in that timespan*/
+        this.cleanNulls(metrics[0].datapoints);
+        
+        var out = R("r-modules/deviation.R")
+        .data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+        .callSync();
+
+        return out
+
+    }
+
     //changes all the null values to 0.
     cleanNulls(datapoints) {
     	datapoints = datapoints.map(function(datapoint) {

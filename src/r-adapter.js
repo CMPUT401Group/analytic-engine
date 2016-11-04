@@ -19,7 +19,7 @@ var metric2 = [
 
 
 // sync
-var out = R("r-modules/linear-correlation.R")
-    .data(metric1[0].datapoints, metric2[0].datapoints)
+var out = R("r-modules/deviation.R")
+    .data(metric1[0].datapoints)
     .callSync();
 console.log(out);
