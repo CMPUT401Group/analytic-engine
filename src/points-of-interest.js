@@ -130,4 +130,19 @@ export default class POI {
         let patterns = serializedPatterns.map(serializedPattern => PatternFactory.deserialize(serializedPattern));
         return patterns;
     }
+
+    /**
+     * Gets all Threshold points of interest.
+     */
+    findAllThresholdAsync() {
+        return new Promise((resolve, reject) => {
+            this.poiCollection.find({name: 'Threshold'}).toArray((err, docs) => {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(docs);
+                }
+            });
+        });
+    }
 }
