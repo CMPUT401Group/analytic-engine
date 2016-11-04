@@ -27,7 +27,7 @@ function main() {
   app.post('/pattern/threshold', (req, res, next) => {
     let rawThreshold = req.body.threshold;
     rawThreshold = rawThreshold.map(threshold => {
-      switch (String(threshold.thresholdRule).trim()) {
+      switch (threshold.thresholdRule) {
         case '<':
           threshold.thresholdRule = THRESHOLDRULE.LESSTHAN;
           break;
