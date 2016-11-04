@@ -23,18 +23,13 @@ function main() {
   let pointsOfInterest = new POI(mongodPort, 'app');
 
   pointsOfInterest.open();
-  pointsOfInterest.close();
 
   app.post('/pattern/threshold', (req, res) => {
 
   });
 
   app.get('/pattern/threshold', (req, res) => {
-    res.json([
-      { name: 'metric-1', value: 23 },
-      { name: 'metric-2', value: 45 },
-      { name: 'metric-3', value: 66 }
-    ]);
+    res.json(pointsOfInterest.findAllThreshold());
   });
 
   app.get('/pattern', (req, res) => {
