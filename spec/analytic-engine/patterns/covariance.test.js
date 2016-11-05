@@ -89,6 +89,10 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
         let cov = new Covariance(metric1);
         expect(cov.covariance(metric6)).toEqual(0); 
     });
+    it ('deviation metric', function() {
+        let cov = new Covariance(metric1);
+        expect(cov.metricDeviation(metric1,1)).toEqual([1,5]); 
+    });
 
 //the following tests are using the metric and render APIs (they are not true unit tests!) 
 //Moved this to integration test because it needs API input as well. 
