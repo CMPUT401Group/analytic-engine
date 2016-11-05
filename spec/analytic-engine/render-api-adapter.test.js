@@ -1,7 +1,11 @@
 import config from 'config';
 
 import RenderAPIAdapter from './../../src/render-api-adapter';
-
+/**
+ * @description Test suite for config.js, and render-api-adapter.js:
+ * Utilizing jasmine as our Javascript testing framework
+ * {@tutorial https://jasmine.github.io/2.5/introduction}
+ */
 let graphiteURL = config.get('graphiteURL');
 
 // TODO: Make an integration or acceptance testing folder. This test

@@ -1,6 +1,16 @@
 import {Threshold, THRESHOLDRULE} from '../../../src/patterns';
+/**
+ * @author Joey Andres
+ * @description Test suite for threshold.js:
+ * Utilizing jasmine as our Javascript testing framework
+ * {@tutorial https://jasmine.github.io/2.5/introduction}
+ * @see Many things in that module are not tested directly,
+ * but tested through transitivity :).
+ */
 
-// Note: Many things in that module are not tested directly, but tested through transitivity :).
+/**
+ *
+ */
 
 describe("AnalyticEngine - Patterns - Threshold", function() {
     it ('constructor setups the Pattern._type', function() {

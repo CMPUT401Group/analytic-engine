@@ -1,6 +1,13 @@
 //import Validate from 'validate-arguments';
 import NonLinearPatternMatching from '../../src/non-linear-pattern-matching';
 
+/**
+ * @description Test suite for non-linear-pattern-matching.js:
+ * Utilizing jasmine as our Javascript testing framework
+ * {@tutorial https://jasmine.github.io/2.5/introduction}
+ */
+
+
 describe("AnalyticEngine - NonLinearPatternMatching", function() {
     beforeEach(function() {
 

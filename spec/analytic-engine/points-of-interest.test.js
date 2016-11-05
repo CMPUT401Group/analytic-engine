@@ -3,6 +3,16 @@ import config from 'config';
 import {Threshold, THRESHOLDRULE, PatternFactory} from '../../src/patterns';
 import POI from './../../src/points-of-interest';
 
+/**
+ * @description Test suite for config.js, points-of-interest.js
+ * threhold.js and pattern-factory.js:
+ * Utilizing jasmine as our Javascript testing framework
+ * {@tutorial https://jasmine.github.io/2.5/introduction}
+ * @todo find threading issues plaguing this test suite
+ */
+
+
+
 let mongodPort = config.get('mongodPort');
 
 // TODO: Make an integration or acceptance testing folder. This test

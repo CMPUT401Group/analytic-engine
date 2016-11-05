@@ -3,7 +3,11 @@
 
 //import config from 'config';
 import {Covariance} from '../../../src/patterns';
-
+/**
+ * @description Test suite for covariance.js:
+ * Utilizing jasmine as our Javascript testing framework
+ * {@tutorial https://jasmine.github.io/2.5/introduction}
+ */
 
 var metric1 = [
             {
