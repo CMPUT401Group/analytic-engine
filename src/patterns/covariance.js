@@ -101,7 +101,7 @@ class Covariance extends Pattern {
         return out
     }
 
-/*performs a linear correlation with all metrics at the same time period as the original
+/**performs a linear correlation with all metrics at the same time period as the original
 populates a dictionary metricDict: {"metric name": correlation vaue}
 Metrics which returned an error are recorded with their error in ErrorDict. Most of these are for 
 'incompatible dimentions'. 
@@ -159,9 +159,11 @@ TODO: We can look at interpolating points*/
             }
         );
     }
-
+/**check a given metric in a large timeframe and see if it deviates significantly in that timespan
+takes a metric and an int multiplier to signify the number of standard deviations from the median a value must
+be to be returned. Returns a list of timestamps for the identified data points*/
     metricDeviation(metrics, stDevMulti){
-/*check a given metric in a large timeframe and see if it deviates significantly in that timespan*/
+
         this.cleanNulls(metrics[0].datapoints);
         
         var out = R("r-modules/deviation.R")
@@ -172,7 +174,7 @@ TODO: We can look at interpolating points*/
 
     }
 
-    //changes all the null values to 0.
+    /**changes all the null values to 0. */
     cleanNulls(datapoints) {
     	datapoints = datapoints.map(function(datapoint) {
     		if (!_.isNumber(datapoint[0])) {
