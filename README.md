@@ -7,7 +7,7 @@ This package is the **Analytic Engine** in the RunWith-IT stack.
 
 ## Requirements
 1. r-statistics
-2. node
+2. node 4.6.2
 3. npm (should be installed automatically when node is installed).
 4. gulp (do via `npm install -g gulp`)
 5. For testing, `npm install -g jasmine`
