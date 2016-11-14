@@ -9,6 +9,8 @@ import async from 'async';
 import {EpochToDate} from './../utility';
 import moment from 'moment';
 
+var interpL = require( 'line-interpolate-points' )
+
 let graphiteURL = config.get('graphiteURL');
 
 /** 
@@ -184,6 +186,23 @@ be to be returned. Returns a list of timestamps for the identified data points*/
     	});
     }
 
+    /**
+    * takes 2 sets of datapoints and equalizes the number of points between them
+    *
+    */
+    interpolatePoints(set1, set2){
+        //return both sets somehow
+        if (set1.length == 0 || set2.length ==0){
+            return null;
+        }
+        if (set1.length > set2.length){
+            interpL(set2, set1.length)
+        }
+        if (set1.length < set2.length){
+            interpL(set1, set2.length)
+        }
+    }
+
 
     /**
      * @returns {{pattern: Object, _type: String }} Serialized covarianceSet pattern.
@@ -217,6 +236,9 @@ be to be returned. Returns a list of timestamps for the identified data points*/
 
         return new Covariance(serializedPattern.pattern);
     }
+
+
+
 }
 
 export {Covariance};

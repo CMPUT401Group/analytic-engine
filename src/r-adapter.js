@@ -1,5 +1,6 @@
 // example.js
 import R from 'r-script';
+var interpL = require( 'line-interpolate-points' );
 /**
  * @param {[{target:string, datapoints:[]}]}
  */
@@ -24,7 +25,9 @@ var metric2 = [
  * @description passes data from java script to R readable format
  */
 // sync
-var out = R("r-modules/deviation.R")
-    .data(metric1[0].datapoints,1)
-    .callSync();
+//var out = R("r-modules/deviation.R")
+ //   .data(metric1[0].datapoints,1)
+ //   .callSync();
+
+var out = interpL(metric1[0].datapoints,10);
 console.log(out);
