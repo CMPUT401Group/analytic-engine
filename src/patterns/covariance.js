@@ -10,6 +10,7 @@ import {EpochToDate} from './../utility';
 import moment from 'moment';
 
 var interpL = require( 'line-interpolate-points' )
+var exec = require('child_process').exec;
 
 let graphiteURL = config.get('graphiteURL');
 
@@ -98,11 +99,12 @@ class Covariance extends Pattern {
 
         metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
 
-    	var out = R("r-modules/linear-correlation.R")
+    	R("r-modules/linear-correlation.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
-    	.callSync();
-
-        return out
+    	.call(function(err, out) {
+            if (err) throw err;
+            return out;
+            });
     }
 
 /**performs a linear correlation with all metrics at the same time period as the original
@@ -115,6 +117,8 @@ TODO: We can look at interpolating points*/
         var metricAPI = new MetricsAPIAdapter(graphiteURL); 
         var render = new RenderAPIAdapter(graphiteURL);
         var allMetrics = metricAPI.findAll();
+        var totalMetrics = allMetrics.length;
+        var completedMetrics = 0;
 
         /*var smallTest = [];
         smallTest.push(allMetrics[0]);
@@ -122,12 +126,14 @@ TODO: We can look at interpolating points*/
         smallTest.push(allMetrics[2]);
         console.log('number of metrics: ',smallTest.length); */
 
+
+
         var start = moment.unix(this.getStartTime()).utc().format('HH:mm_YYYYMMDD');
         var end = moment.unix(this.getEndTime()).utc().format('HH:mm_YYYYMMDD');
         var self = this;
         async.forEach(Object.keys(allMetrics), function(metricIndex, callback2) {
             let metricName = allMetrics[metricIndex];
-            render.renderAsync({
+            exec(render.renderAsync({
                 target: metricName,
                 format: 'json',
                 from: start,
@@ -141,6 +147,9 @@ TODO: We can look at interpolating points*/
                     try {
                         let cor = self.correlation(result);
                         self.metricDict[metricName] = cor;
+                        completedMetrics++;
+                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics);
+
                     }catch(e){
                         //console.log(metricName, result.length, e);
                         self.errorDict[metricName] = e;
@@ -149,7 +158,7 @@ TODO: We can look at interpolating points*/
                 }
 
             callback2();
-            });
+            }));
             //console.log(renderRes);
             //let cor = covObj.correlation(renderRes);
             //metricDict[metric] = cor;

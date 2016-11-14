@@ -29,13 +29,22 @@ export default class RenderAPIAdapter {
 
     renderAsync(options, callback) {
         let urlParams = utility.objToURLParam(options);
+        var self = this;
+        var retryTotal = 0;
         requestretry(`${this.graphiteURL}/render?${urlParams}`, function (error, response, body) {
             if (!error && response.statusCode == 200) {
                 body = JSON.parse(body);
+                callback(body, error);
             }
-            if (error.code =='ECONNRESET') {}
             //console.log(error,response.statusCode);
-            callback(body, error);
+            //if (error.code =='ECONNRESET') 
+            else {
+                retryTotal++;
+                console.log("Retry Total: ",retryTotal," ", error," ", options);
+                callback(body, error);
+                //self.renderAsync(options, callback); 
+
+            } //try again
         });
 
     }

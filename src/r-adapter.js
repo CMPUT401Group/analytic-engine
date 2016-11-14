@@ -1,7 +1,10 @@
 // example.js
 import R from 'r-script';
 import {Covariance} from './patterns';
+import RenderAPIAdapter from './render-api-adapter';
+import config from 'config';    
 var interpL = require( 'line-interpolate-points' );
+let graphiteURL = config.get('graphiteURL');
 /**
  * @param {[{target:string, datapoints:[]}]}
  */
@@ -31,7 +34,14 @@ var metric2 = [
  //   .callSync();
 
 //var out = interpL(metric1[0].datapoints,10);
-let cov = new Covariance(metric1);
+var render = new RenderAPIAdapter(graphiteURL);
+var renderRes = render.render({
+            target: 'IN.stb-sim.dean.RequestTiming.count',
+            format: 'json',
+            from: '17:00_20160921',
+            until: '18:00_20160921',
+        }); 
+let cov = new Covariance(renderRes);
 
 console.log(cov.correlationAllMetrics( ()=> done() ));// takes forever (>30 min)
 //console.log(out);
