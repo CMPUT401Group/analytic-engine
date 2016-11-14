@@ -96,6 +96,8 @@ class Covariance extends Pattern {
         //This will return a negative or positive correlation or 'NA' if one of the metrics is a flat line
     	this.cleanNulls(metrics[0].datapoints);
 
+        metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
+
     	var out = R("r-modules/linear-correlation.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.callSync();
@@ -187,20 +189,43 @@ be to be returned. Returns a list of timestamps for the identified data points*/
     }
 
     /**
-    * takes 2 sets of datapoints and equalizes the number of points between them
-    *
+    * takes 2 sets of datapoints and equalizes the number of points between them by making the smaller set 
+    * the same length of the larger set.
+    * @param 2 arrays of 2D datapoints
+    * @returns [interpolatedSet1, interpolatedSet2] array containing both arrays of datapoints
     */
     interpolatePoints(set1, set2){
-        //return both sets somehow
+
         if (set1.length == 0 || set2.length ==0){
             return null;
         }
         if (set1.length > set2.length){
-            interpL(set2, set1.length)
+            set2 = interpL(set2, set1.length);
         }
         if (set1.length < set2.length){
-            interpL(set1, set2.length)
+            set1= interpL(set1, set2.length);
         }
+        var ret = [];
+        ret.push(set1);
+        ret.push(set2);
+        return ret;
+    }
+
+    covInterpP(datapoints){
+        var set1 = this.metricTarget[0].datapoints;
+        var set2 = datapoints
+
+        if (set1.length == 0 || set2.length ==0){
+            return 1;
+            //throw error? 
+        }
+        if (set1.length > set2.length){
+            set2 = interpL(set2, set1.length);
+        }
+        if (set1.length < set2.length){
+            this.metricTarget[0].datapoints = interpL(set1, set2.length);
+        }
+        return set2;
     }
 
 

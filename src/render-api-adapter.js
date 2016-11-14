@@ -33,10 +33,10 @@ export default class RenderAPIAdapter {
             if (!error && response.statusCode == 200) {
                 body = JSON.parse(body);
             }
-           // if (error.code =='ECONNRESET') {}
+            if (error.code =='ECONNRESET') {}
             //console.log(error,response.statusCode);
             callback(body, error);
         });
 
     }
-}
+}   

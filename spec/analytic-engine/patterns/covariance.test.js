@@ -48,6 +48,13 @@ var metric6 = [
                 datapoints: [[0, 1], [0, 2], [0, 3], [0, 4], [0, 5]] 
             }
         ];
+var metric7 = [                  
+            {
+                target: 'dummy.metric.10Points',
+                datapoints: [[0, 1], [5, 2], [10, 3], [15, 4], [20, 5],[25, 6],
+                            [30, 7], [35, 8], [20, 9], [40, 10]] 
+            }
+        ];
 
 describe("AnalyticEngine - Patterns - Covariance", function() {
 /*------------------------------------------------------------------------
@@ -117,7 +124,14 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
         cov.cleanNulls(metric3[0].datapoints);
         expect(metric3[0].datapoints).toEqual(metric4[0].datapoints);
 
-    })
+    });
+
+    it ('interpolate points', function() {
+        let cov = new Covariance(metric3);
+        var points = cov.interpolatePoints(metric3[0].datapoints, metric7[0].datapoints);
+        expect(points[0].length).toEqual(points[1].length);
+
+    });
 
 });
 

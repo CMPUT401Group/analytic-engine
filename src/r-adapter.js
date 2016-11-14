@@ -1,5 +1,6 @@
 // example.js
 import R from 'r-script';
+import {Covariance} from './patterns';
 var interpL = require( 'line-interpolate-points' );
 /**
  * @param {[{target:string, datapoints:[]}]}
@@ -29,5 +30,8 @@ var metric2 = [
  //   .data(metric1[0].datapoints,1)
  //   .callSync();
 
-var out = interpL(metric1[0].datapoints,10);
-console.log(out);
+//var out = interpL(metric1[0].datapoints,10);
+let cov = new Covariance(metric1);
+
+console.log(cov.correlationAllMetrics( ()=> done() ));// takes forever (>30 min)
+//console.log(out);
