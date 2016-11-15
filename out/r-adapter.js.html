@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: render-api-adapter.js</title>
+    <title>JSDoc: Source: r-adapter.js</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,7 +17,7 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: render-api-adapter.js</h1>
+    <h1 class="page-title">Source: r-adapter.js</h1>
 
     
 
@@ -26,48 +26,37 @@
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>import request from 'sync-request';
-import _ from 'underscore';
-import {default as requestAsync} from 'request';
-import utility from './utility';
-import requestretry from 'requestretry'
+            <pre class="prettyprint source linenums"><code>// example.js
+import R from 'r-script';
+/**
+ * @param {[{target:string, datapoints:[]}]}
+ */
+var metric1 = [
+            {
+                target: 'dummy.metric.1',
+                datapoints: [[0, 5], [1, 6], [2, 7], [3, 8], [4, 9]]
+            }
+        ];
+/**
+ * @param {[{target:string, datapoints:[]}]}
+ */
+var metric2 = [                  
+			{
+                target: 'dummy.metric.2',
+                datapoints: [[14, 6], [11, 7], [18, 8], [10, 9], [23,10]]
+            }
+        ];
 
-// TODO: Handle response errors.
 
 /**
- * @class RenderAPIAdapter
- * @brief @see https://graphite-api.readthedocs.io/en/latest/api.html#the-render-api-render
+ * @description passes data from java script to R readable format
  */
-export default class RenderAPIAdapter {
-    constructor(graphiteURL) {
-        this.graphiteURL = graphiteURL;
-    }
-
-    /**
-     * GET /render
-     * @see https://graphite-api.readthedocs.io/en/latest/api.html#the-render-api-render
-     *
-     * @param options
-     */
-    render(options) {
-        let urlParams = utility.objToURLParam(options);
-        let res = request('GET', `${this.graphiteURL}/render?${urlParams}`);
-        return JSON.parse(res.getBody('utf8'));
-    }
-
-    renderAsync(options, callback) {
-        let urlParams = utility.objToURLParam(options);
-        requestretry(`${this.graphiteURL}/render?${urlParams}`, function (error, response, body) {
-            if (!error &amp;&amp; response.statusCode == 200) {
-                body = JSON.parse(body);
-            }
-           // if (error.code =='ECONNRESET') {}
-            //console.log(error,response.statusCode);
-            callback(body, error);
-        });
-
-    }
-}</code></pre>
+// sync
+var out = R("r-modules/deviation.R")
+    .data(metric1[0].datapoints,1)
+    .callSync();
+console.log(out);
+</code></pre>
         </article>
     </section>
 

@@ -3,6 +3,13 @@ import config from 'config';
 import RenderAPIAdapter from './../../src/render-api-adapter';
 import {Covariance} from './../../src/patterns';
 
+/**
+ * @description Test suite for render-api-adapter.js and covariance.js:
+ * Utilizing jasmine as our Javascript testing framework
+ * {@tutorial https://jasmine.github.io/2.5/introduction}
+ */
+
+
 let graphiteURL = config.get('graphiteURL');
 
 var renderRes;

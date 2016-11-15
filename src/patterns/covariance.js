@@ -9,6 +9,9 @@ import async from 'async';
 import {EpochToDate} from './../utility';
 import moment from 'moment';
 
+var interpL = require( 'line-interpolate-points' )
+var exec = require('child_process').exec;
+
 let graphiteURL = config.get('graphiteURL');
 
 /** 
@@ -94,14 +97,17 @@ class Covariance extends Pattern {
         //This will return a negative or positive correlation or 'NA' if one of the metrics is a flat line
     	this.cleanNulls(metrics[0].datapoints);
 
-    	var out = R("r-modules/linear-correlation.R")
-    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
-    	.callSync();
+        metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
 
-        return out
+    	R("r-modules/linear-correlation.R")
+    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+    	.call(function(err, out) {
+            if (err) throw err;
+            return out;
+            });
     }
 
-/*performs a linear correlation with all metrics at the same time period as the original
+/**performs a linear correlation with all metrics at the same time period as the original
 populates a dictionary metricDict: {"metric name": correlation vaue}
 Metrics which returned an error are recorded with their error in ErrorDict. Most of these are for 
 'incompatible dimentions'. 
@@ -111,6 +117,8 @@ TODO: We can look at interpolating points*/
         var metricAPI = new MetricsAPIAdapter(graphiteURL); 
         var render = new RenderAPIAdapter(graphiteURL);
         var allMetrics = metricAPI.findAll();
+        var totalMetrics = allMetrics.length;
+        var completedMetrics = 0;
 
         /*var smallTest = [];
         smallTest.push(allMetrics[0]);
@@ -118,12 +126,14 @@ TODO: We can look at interpolating points*/
         smallTest.push(allMetrics[2]);
         console.log('number of metrics: ',smallTest.length); */
 
+
+
         var start = moment.unix(this.getStartTime()).utc().format('HH:mm_YYYYMMDD');
         var end = moment.unix(this.getEndTime()).utc().format('HH:mm_YYYYMMDD');
         var self = this;
         async.forEach(Object.keys(allMetrics), function(metricIndex, callback2) {
             let metricName = allMetrics[metricIndex];
-            render.renderAsync({
+            exec(render.renderAsync({
                 target: metricName,
                 format: 'json',
                 from: start,
@@ -137,6 +147,9 @@ TODO: We can look at interpolating points*/
                     try {
                         let cor = self.correlation(result);
                         self.metricDict[metricName] = cor;
+                        completedMetrics++;
+                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics);
+
                     }catch(e){
                         //console.log(metricName, result.length, e);
                         self.errorDict[metricName] = e;
@@ -145,7 +158,7 @@ TODO: We can look at interpolating points*/
                 }
 
             callback2();
-            });
+            }));
             //console.log(renderRes);
             //let cor = covObj.correlation(renderRes);
             //metricDict[metric] = cor;
@@ -159,9 +172,11 @@ TODO: We can look at interpolating points*/
             }
         );
     }
-
+/**check a given metric in a large timeframe and see if it deviates significantly in that timespan
+takes a metric and an int multiplier to signify the number of standard deviations from the median a value must
+be to be returned. Returns a list of timestamps for the identified data points*/
     metricDeviation(metrics, stDevMulti){
-/*check a given metric in a large timeframe and see if it deviates significantly in that timespan*/
+
         this.cleanNulls(metrics[0].datapoints);
         
         var out = R("r-modules/deviation.R")
@@ -172,7 +187,7 @@ TODO: We can look at interpolating points*/
 
     }
 
-    //changes all the null values to 0.
+    /**changes all the null values to 0. */
     cleanNulls(datapoints) {
     	datapoints = datapoints.map(function(datapoint) {
     		if (!_.isNumber(datapoint[0])) {
@@ -180,6 +195,46 @@ TODO: We can look at interpolating points*/
     		}
     		return 0;
     	});
+    }
+
+    /**
+    * takes 2 sets of datapoints and equalizes the number of points between them by making the smaller set 
+    * the same length of the larger set.
+    * @param 2 arrays of 2D datapoints
+    * @returns [interpolatedSet1, interpolatedSet2] array containing both arrays of datapoints
+    */
+    interpolatePoints(set1, set2){
+
+        if (set1.length == 0 || set2.length ==0){
+            return null;
+        }
+        if (set1.length > set2.length){
+            set2 = interpL(set2, set1.length);
+        }
+        if (set1.length < set2.length){
+            set1= interpL(set1, set2.length);
+        }
+        var ret = [];
+        ret.push(set1);
+        ret.push(set2);
+        return ret;
+    }
+
+    covInterpP(datapoints){
+        var set1 = this.metricTarget[0].datapoints;
+        var set2 = datapoints
+
+        if (set1.length == 0 || set2.length ==0){
+            return 1;
+            //throw error? 
+        }
+        if (set1.length > set2.length){
+            set2 = interpL(set2, set1.length);
+        }
+        if (set1.length < set2.length){
+            this.metricTarget[0].datapoints = interpL(set1, set2.length);
+        }
+        return set2;
     }
 
 
@@ -215,6 +270,9 @@ TODO: We can look at interpolating points*/
 
         return new Covariance(serializedPattern.pattern);
     }
+
+
+
 }
 
 export {Covariance};

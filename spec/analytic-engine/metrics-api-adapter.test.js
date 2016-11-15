@@ -1,6 +1,11 @@
 import config from 'config';
 
 import MetricsAPIAdapter from './../../src/metrics-api-adapter';
+/**
+ * @description Test suite for metrics-api-adapter.js:
+ * Utilizing jasmine as our Javascript testing framework
+ * {@tutorial https://jasmine.github.io/2.5/introduction}
+ */
 
 let graphiteURL = config.get('graphiteURL');
 
