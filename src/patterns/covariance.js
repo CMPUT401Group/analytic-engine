@@ -221,22 +221,24 @@ be to be returned. Returns a list of timestamps for the identified data points*/
         ret.push(set2);
         return ret;
     }
-//TODO: this needs to be made to make sense. It only works for my test because the starting metric
-//has the most datapoints. 
+
+    /**
+    *takes a single set of datapoints and makes the number of points equal to the number of points
+    *in the set which initialized the covaraince class instantiation. This ensures that when running many comparisons
+    *we do not interpolate based on already interpolated data. see correlationAllMetrics() for an example of comparing 
+    *many metrics
+    */
     covInterpP(datapoints){
         var set1 = this.metricTarget[0].datapoints;
         var set2 = datapoints
 
         if (set1.length == 0 || set2.length ==0){
+            //throw "Can only compare metrics with data in time range";
             return 1;
-            //throw error? 
         }
-        if (set1.length > set2.length){
             set2 = interpL(set2, set1.length);
-        }
-        if (set1.length < set2.length){
-            this.metricTarget[0].datapoints = interpL(set1, set2.length);
-        }
+
+
         return set2;
     }
 
