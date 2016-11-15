@@ -40,7 +40,8 @@ export default class RenderAPIAdapter {
             //if (error.code =='ECONNRESET') 
             else {
                 retryTotal++;
-                console.log("Retry Total: ",retryTotal," ", error," ", options);
+                if (error.code =='ECONNRESET') {}//ignore this and retry
+                else {console.log("Retry Total: ",retryTotal," ", error," ", options);}
                 callback(body, error);
                 //self.renderAsync(options, callback); 
 

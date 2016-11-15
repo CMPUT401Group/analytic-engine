@@ -102,7 +102,7 @@ class Covariance extends Pattern {
     	R("r-modules/linear-correlation.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.call(function(err, out) {
-            if (err){ throw err; }
+            if (err){ throw err; } // this is sometimes coming back as a missing library. 
             return out;
             });
     }
@@ -168,6 +168,8 @@ TODO: We can look at interpolating points*/
                         throw err;
                     }
                 //success case here
+                console.log("Dictionary Results: ");
+                console.log(self.metricDict);
                 callback1(0);
             }
         );
