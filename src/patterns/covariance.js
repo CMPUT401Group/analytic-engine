@@ -107,6 +107,20 @@ class Covariance extends Pattern {
             });
     }
 
+/**
+*Finds the local minima and maxima for a given timeframe in the metric data.
+*/
+    findLocalMinMax(metrics, timeframe){
+        this.cleanNulls(metrics[0].datapoints);
+
+        R("r-modules/interpolatePOI.R")
+        .data(metrics[0].datapoints)
+        .call(function(err, out) {
+            if (err){ throw err; } // this is sometimes coming back as a missing library. 
+            return out;
+            });
+    }
+
 /**performs a linear correlation with all metrics at the same time period as the original
 populates a dictionary metricDict: {"metric name": correlation vaue}
 Metrics which returned an error are recorded with their error in ErrorDict. Most of these are for 
