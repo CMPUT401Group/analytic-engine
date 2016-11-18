@@ -93,7 +93,19 @@ class Covariance extends Pattern {
         return out
     }
 
-    correlation(metrics) {
+    correlation(metrics){
+        this.cleanNulls(metrics[0].datapoints);
+
+        metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
+
+        var out = R("r-modules/linear-correlation.R")
+        .data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+        .callSync();
+
+        return out
+    }
+
+    correlationAsync(metrics) {
         //This will return a negative or positive correlation or 'NA' if one of the metrics is a flat line
     	this.cleanNulls(metrics[0].datapoints);
 
