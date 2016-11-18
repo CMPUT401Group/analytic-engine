@@ -30,6 +30,20 @@ var metric3 = [
             }
         ];
 
+var metric32 = [                  
+            {
+                target: 'dummy.metric.nulls2',
+                datapoints: [["null", 2], [null, 3], [2, 4], [3, 5], [4, 6]] 
+            }
+        ];
+
+var metric3NoNulls = [                  
+            {
+                target: 'dummy.metric.nulls',
+                datapoints: [ [2, 4], [3, 5], [4, 6]] 
+            }
+        ];
+ 
 var metric4 = [                  
 			{
                 target: 'dummy.metric.nullResults',
@@ -119,10 +133,17 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
     data manipulation/sanitization
 ------------------------------------------------------------------------*/
 
-	it ('remove nulls', function() {
+	it ('Replacing nulls with 0', function() {
         let cov = new Covariance(metric3);
         cov.cleanNulls(metric3[0].datapoints);
         expect(metric3[0].datapoints).toEqual(metric4[0].datapoints);
+
+    });
+
+    it ('remove nulls', function() {
+        let cov = new Covariance(metric3);
+        cov.cleanNulls(metric32[0].datapoints,1);
+        expect(metric32[0].datapoints).toEqual(metric3NoNulls[0].datapoints);
 
     });
 
