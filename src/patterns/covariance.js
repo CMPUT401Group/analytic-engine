@@ -93,7 +93,19 @@ class Covariance extends Pattern {
         return out
     }
 
-    correlation(metrics) {
+    correlation(metrics){
+        this.cleanNulls(metrics[0].datapoints);
+
+        metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
+
+        var out = R("r-modules/linear-correlation.R")
+        .data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+        .callSync();
+
+        return out
+    }
+
+    correlationAsync(metrics) {
         //This will return a negative or positive correlation or 'NA' if one of the metrics is a flat line
     	this.cleanNulls(metrics[0].datapoints);
 
@@ -102,6 +114,20 @@ class Covariance extends Pattern {
     	R("r-modules/linear-correlation.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
     	.call(function(err, out) {
+            if (err){ throw err; } // this is sometimes coming back as a missing library. 
+            return out;
+            });
+    }
+
+/**
+*Finds the local minima and maxima for a given timeframe in the metric data.
+*/
+    findLocalMinMax(metrics, timeframe){
+        this.cleanNulls(metrics[0].datapoints);
+
+        R("r-modules/interpolatePOI.R")
+        .data(metrics[0].datapoints)
+        .call(function(err, out) {
             if (err){ throw err; } // this is sometimes coming back as a missing library. 
             return out;
             });

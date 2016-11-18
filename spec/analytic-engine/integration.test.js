@@ -28,6 +28,7 @@ describe("AnalyticEngine - integration", function() {
             until: '18:00_20160921',
         });
     });
+    /*
     it("something", function(done) {
         renderRes2 = this.render.render({
             target: 'IN.stb-sim.dean.ImpressionReport.Impressions.count',
@@ -57,11 +58,11 @@ describe("AnalyticEngine - integration", function() {
             expect(result[0]).toBeTruthy();
             expect(result[0].datapoints).toBeTruthy();
             done();
-        });
+        }); 
 
         //console.log(cov.correlationAllMetrics( ()=> done() ));// takes forever (>30 min)
 
-    });
+    }); */
 
 });
 

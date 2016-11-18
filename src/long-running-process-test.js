@@ -28,7 +28,20 @@ var metric2 = [
 /**
  * @description passes data from java script to R readable format
  */
-var out = R("r-modules/interpolatePOI.R")
-   .data(metric1[0].datapoints)
-   .callSync();
-console.log(out);
+// sync
+//var out = R("r-modules/deviation.R")
+ //   .data(metric1[0].datapoints,1)
+ //   .callSync();
+
+//var out = interpL(metric1[0].datapoints,10);
+var render = new RenderAPIAdapter(graphiteURL);
+var renderRes = render.render({
+            target: 'IN.stb-sim.dean.RequestTiming.count',
+            format: 'json',
+            from: '17:00_20160921',
+            until: '18:00_20160921',
+        }); 
+let cov = new Covariance(renderRes);
+
+cov.correlationAllMetrics( ()=> done() );// takes forever (>30 min)
+//console.log(out);
