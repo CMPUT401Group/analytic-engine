@@ -89,11 +89,25 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
 /*------------------------------------------------------------------------
     correlation and covariance
 ------------------------------------------------------------------------*/
-	it ('complete correlation', function() {
-        let cov = new Covariance(metric1);
-        expect(cov.correlation(metric2)).toEqual(1.0); 
-        //this is perfectly linearly correlated but moved +1
+    describe("async test", function() {
+        var returnedResult;
+        beforeEach(function(done) {
+            let cov = new Covariance(metric1);
+            cov.correlationAsync(metric2).then(function(result){
+                returnedResult = result;
+                done();
+            }), function(err){
+                throw err;
+                }
+        });
+	   it ('complete correlation', function() {
+            expect(returnedResult).toEqual(1.0); //WHY DOES THIS TEST FAIL!?
+            //this is perfectly linearly correlated but moved +1
+        });
+
     });
+    
+    
 	it ('negative correlation', function() {
         let cov = new Covariance(metric1);
         expect(cov.correlation(metric5)).toEqual(-1); 
@@ -101,7 +115,7 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
     it ('flat line correlation', function() {
         let cov = new Covariance(metric1);
         expect(cov.correlation(metric6)).toEqual('NA'); 
-    });
+    }); 
 	it ('Covariance', function() {
         let cov = new Covariance(metric1);
         expect(cov.covariance(metric1)).toEqual(2.5); //I have not checked this by hand. 

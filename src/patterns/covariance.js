@@ -118,12 +118,19 @@ class Covariance extends Pattern {
 
         metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
 
-    	R("r-modules/linear-correlation.R")
-    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
-    	.call(function(err, out) {
-            if (err){ throw err; } // this is sometimes coming back as a missing library. 
-            return out;
-            });
+        var p1 = new Promise(
+        // The resolver function is called with the ability to resolve or
+        // reject the promise
+        function(resolve, reject) {
+                    R("r-modules/linear-correlation.R")
+                    .data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+                    .call(function(err, out) {
+                    if (err){ reject(err); } // this is sometimes coming back as a missing library. 
+                    else {resolve(out); }
+                    });  
+        })
+    
+        return p1;
     }
 
     /**
@@ -139,6 +146,8 @@ class Covariance extends Pattern {
             return out;
             });
     }
+
+
 
     /**performs a linear correlation with all metrics at the same time period as the original
     *populates a dictionary metricDict: {"metric name": correlation vaue}
@@ -158,7 +167,7 @@ class Covariance extends Pattern {
         var self = this;
         async.forEach(Object.keys(allMetrics), function(metricIndex, callback2) {
             let metricName = allMetrics[metricIndex];
-            exec(render.renderAsync({
+            exec(render.renderAsync({ //creates a new thread for this
                 target: metricName,
                 format: 'json',
                 from: start,
@@ -170,10 +179,11 @@ class Covariance extends Pattern {
                 }
                 else{
                     try {
+                        console.log(dataresult[0].datapoints.length);
                         let cor = self.correlation(result);
                         self.metricDict[metricName] = cor;
                         completedMetrics++;
-                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics);
+                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics, " value Stored: ",cor);
 
                     }catch(e){
                         //console.log(metricName, result.length, e);

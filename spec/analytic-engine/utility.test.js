@@ -1,5 +1,4 @@
 import utility from '../../src/utility';
-import {EpochToDate} from '../../src/utility';
 
 /**
  * @description Test suite for utility.js:
@@ -20,10 +19,5 @@ describe("AnalyticEngine - Utility", function() {
         expect(utility.objToURLParam(obj)).toBe(expectedURLParam);
     });
 
-    it("Epoch to UTC date format for render api adapter - Convert UNIX time to UTC.", function () {
-        let UNIXTimestamp = 1451602800
-        let expected_APIFormat = '23:00_20151231'
-        expect(EpochToDate(UNIXTimestamp)).toBe(expected_APIFormat)
 
-    });
 });

@@ -37,7 +37,6 @@ Tests utilize the Jasmine test framework. They should all be placed in _spec/ana
 
 ## TODO:
 * we need more robust interpolation of data points (currently, I think we might miss out on local minima and maxima in a dataset which could skew the results of covarance and correlation analysis)
-* we need the ability to remove data points which are null in a metric rather than treating them as 0
 * we need to make sure that when comapring sets of datapoints we comapre points which have the same time spacing. If there are differing intervals or gaps in a metric, we need to represent that in the number of datapoints for that metric (currently we assume that we are always comapring the same span of time and we simply interpolate more points in one of the metrics to match the other. We always create interpolated sets with even spacing in the timeframe and we need to ensure that is the case for the other metric as well. Possibly this means that we should interpolate both metrics, but I think we need to address whether interpolating is causing the data to lose possible points of interest which line up in time to points in the other data set anyway)
 * we need to create the api to talk to a front end of some kind. This api just needs to call certain methods or functions which are performing anaysis.
 * we need to save the results of anaysis in the database in case the program terminate

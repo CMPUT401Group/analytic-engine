@@ -1,9 +1,9 @@
 import _ from 'underscore';
 import R from 'r-script';
 import moment from 'moment';
-import MetricsAPIAdapter from './../metrics-api-adapter';
-import RenderAPIAdapter from './../render-api-adapter';
-import covariance from './../covariance';
+import MetricsAPIAdapter from './metrics-api-adapter';
+import RenderAPIAdapter from './render-api-adapter';
+import covariance from './patterns/covariance';
 
 // Gets closest time to specified time frame put in by user
 // i.e. if user enters 113, but doesn't exist in the data set
