@@ -80,6 +80,11 @@ function main() {
       var func = req.params.func; 
   });
 
+  app.get('/call',function(req, res)  
+  {
+      res.JSON("Hello World");
+  });
+
   app.listen(nodejsPort, function () {
     console.log('Example app listening on port: ',nodejsPort);
   });
