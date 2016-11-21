@@ -72,13 +72,12 @@ function main() {
 
   app.get('/call/:mdate1/:mdate2/:m1/:m2/:func',function(req, res)  
   {
-      console.log("we got a get from SAM");
-      var mdate1 = req.parms.mdate1;
+      /*var mdate1 = req.parms.mdate1;
       var mdate2 = req.parms.mdate2;
       var m1 = req.parms.m1;
       var m2 = req.parms.m2;
-      var func = req.params.func; 
-      res.json("the result of this process");
+      var func = req.params.func; */
+      res.json("the result of this process", req.params);
   });
 
   app.get('/call',function(req, res)  
