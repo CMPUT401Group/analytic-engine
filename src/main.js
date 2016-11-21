@@ -77,7 +77,7 @@ function main() {
       var m1 = req.parms.m1;
       var m2 = req.parms.m2;
       var func = req.params.func; */
-      res.json("the result of this process", req.params);
+      res.json(req.body);
   });
 
   app.get('/call',function(req, res)  
