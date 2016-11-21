@@ -78,11 +78,12 @@ function main() {
       var m1 = req.parms.m1;
       var m2 = req.parms.m2;
       var func = req.params.func; 
+      res.json("the result of this process");
   });
 
   app.get('/call',function(req, res)  
   {
-      res.JSON("Hello World");
+      res.json("Hello World");
   });
 
   app.listen(nodejsPort, function () {
