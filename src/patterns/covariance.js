@@ -12,6 +12,8 @@ import moment from 'moment';
 var interpL = require( 'line-interpolate-points' )
 var exec = require('child_process').exec;
 
+var cleaningENUM = Object.freeze({ZERO: 0, REMOVE: 1});
+
 let graphiteURL = config.get('graphiteURL');
 
 /** 
@@ -73,18 +75,17 @@ class Covariance extends Pattern {
      */
     error(metrics) {
         
-    	this.cleanNulls(metrics[0].datapoints);
-		
-		var out = R("r-modules/linear-correlation.R")
-    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
-    	.callSync();
-
-        return out
+    	throw "dont use this method";
     }
-
+    /**
+    * cleans the 'null' values in a metric, interpolates points in the metrics argument to be the same number as 
+    * the metric used to initialize the class, then calcualtes the covariance between these 2 metrics and returns it
+    */
     covariance(metrics) {
 
     	this.cleanNulls(metrics[0].datapoints);
+
+        metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
 
     	var out = R("r-modules/linear-covariance.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
@@ -93,6 +94,12 @@ class Covariance extends Pattern {
         return out
     }
 
+    /**
+    * cleans the 'null' values in a metric, interpolates points in the metrics argument to be the same number as 
+    * the metric used to initialize the class, then calcualtes the linear correlation between these 2 metrics and returns it.
+    * 1 or -1 indicate perfect linear or negatively linear correlation respectively. less correlated data will fall into the
+    * the range of 1>x>-1
+    */
     correlation(metrics){
         this.cleanNulls(metrics[0].datapoints);
 
@@ -111,17 +118,24 @@ class Covariance extends Pattern {
 
         metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
 
-    	R("r-modules/linear-correlation.R")
-    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
-    	.call(function(err, out) {
-            if (err){ throw err; } // this is sometimes coming back as a missing library. 
-            return out;
-            });
+        var p1 = new Promise(
+        // The resolver function is called with the ability to resolve or
+        // reject the promise
+        function(resolve, reject) {
+                    R("r-modules/linear-correlation.R")
+                    .data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+                    .call(function(err, out) {
+                    if (err){ reject(err); } // this is sometimes coming back as a missing library. 
+                    else {resolve(out); }
+                    });  
+        })
+    
+        return p1;
     }
 
-/**
-*Finds the local minima and maxima for a given timeframe in the metric data.
-*/
+    /**
+    *Finds the local minima and maxima for a given timeframe in the metric data.
+    */
     findLocalMinMax(metrics, timeframe){
         this.cleanNulls(metrics[0].datapoints);
 
@@ -133,11 +147,13 @@ class Covariance extends Pattern {
             });
     }
 
-/**performs a linear correlation with all metrics at the same time period as the original
-populates a dictionary metricDict: {"metric name": correlation vaue}
-Metrics which returned an error are recorded with their error in ErrorDict. Most of these are for 
-'incompatible dimentions'. 
-TODO: We can look at interpolating points*/
+
+
+    /**performs a linear correlation with all metrics at the same time period as the original
+    *populates a dictionary metricDict: {"metric name": correlation vaue}
+    *Metrics which returned an error are recorded with their error in ErrorDict. Most of these are for 
+    *'incompatible dimentions'. 
+    *TODO: We can look at interpolating points more effectively*/
     correlationAllMetrics(callback1){
         //TODO: move these class initializations to be static objects somewhere for better performance
         var metricAPI = new MetricsAPIAdapter(graphiteURL); 
@@ -146,20 +162,12 @@ TODO: We can look at interpolating points*/
         var totalMetrics = allMetrics.length;
         var completedMetrics = 0;
 
-        /*var smallTest = [];
-        smallTest.push(allMetrics[0]);
-        smallTest.push(allMetrics[1]);
-        smallTest.push(allMetrics[2]);
-        console.log('number of metrics: ',smallTest.length); */
-
-
-
         var start = moment.unix(this.getStartTime()).utc().format('HH:mm_YYYYMMDD');
         var end = moment.unix(this.getEndTime()).utc().format('HH:mm_YYYYMMDD');
         var self = this;
         async.forEach(Object.keys(allMetrics), function(metricIndex, callback2) {
             let metricName = allMetrics[metricIndex];
-            exec(render.renderAsync({
+            exec(render.renderAsync({ //creates a new thread for this
                 target: metricName,
                 format: 'json',
                 from: start,
@@ -171,10 +179,11 @@ TODO: We can look at interpolating points*/
                 }
                 else{
                     try {
+                        console.log(dataresult[0].datapoints.length);
                         let cor = self.correlation(result);
                         self.metricDict[metricName] = cor;
                         completedMetrics++;
-                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics);
+                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics, " value Stored: ",cor);
 
                     }catch(e){
                         //console.log(metricName, result.length, e);
@@ -185,9 +194,6 @@ TODO: We can look at interpolating points*/
 
             callback2();
             }));
-            //console.log(renderRes);
-            //let cor = covObj.correlation(renderRes);
-            //metricDict[metric] = cor;
 
         }, function(err) {
                     if(err){
@@ -200,9 +206,11 @@ TODO: We can look at interpolating points*/
             }
         );
     }
-/**check a given metric in a large timeframe and see if it deviates significantly in that timespan
-takes a metric and an int multiplier to signify the number of standard deviations from the median a value must
-be to be returned. Returns a list of timestamps for the identified data points*/
+
+    /**check a given metric in a large timeframe and see if it deviates significantly in that timespan
+    * takes a metric and an int multiplier to signify the number of standard deviations from the median a value must
+    * be to be returned. Returns a list of timestamps for the identified data points
+    */
     metricDeviation(metrics, stDevMulti){
 
         this.cleanNulls(metrics[0].datapoints);
@@ -215,15 +223,26 @@ be to be returned. Returns a list of timestamps for the identified data points*/
 
     }
 
-    /**changes all the null values to 0. */
-    cleanNulls(datapoints) {
-    	datapoints = datapoints.map(function(datapoint) {
-    		if (!_.isNumber(datapoint[0])) {
-    			datapoint[0] = 0;
-    		}
-    		return 0;
-    	});
+    /**
+    * changes all the null values to 0. 
+    */
+    cleanNulls(datapoints, flag=0) {
+            //change all to zero
+       
+    	   for(let i=0; i<datapoints.length; i++){
+    	       if (!_.isNumber(datapoints[i][0])) {
+                    if (flag == cleaningENUM.ZERO){
+    		  	       datapoints[i][0] = 0;
+                    }
+                    else if (flag == cleaningENUM.REMOVE) {
+                        datapoints.splice(i,1);
+                        i--;
+                    }
+    		    }
+    	    }
+           return datapoints;
     }
+    
 
     /**
     * takes 2 sets of datapoints and equalizes the number of points between them by making the smaller set 
@@ -259,12 +278,11 @@ be to be returned. Returns a list of timestamps for the identified data points*/
         var set2 = datapoints
 
         if (set1.length == 0 || set2.length ==0){
-            //throw "Can only compare metrics with data in time range";
-            return 1;
+
+            throw "cannot interpolate metric of length 0" 
         }
             set2 = interpL(set2, set1.length);
-
-
+        
         return set2;
     }
 

@@ -28,7 +28,25 @@ var metric2 = [
 /**
  * @description passes data from java script to R readable format
  */
-var out = R("r-modules/interpolatePOI.R")
-   .data(metric1[0].datapoints)
-   .callSync();
-console.log(out);
+
+var p1 = new Promise(
+        // The resolver function is called with the ability to resolve or
+        // reject the promise
+        function(resolve, reject) {
+            // This is only an example to create asynchronism
+                
+                    R("r-modules/linear-correlation.R")
+                    .data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+                    .call(function(err, out) {
+                    if (err){ throw err; } // this is sometimes coming back as a missing library. 
+                    resolve(out);
+                    });  
+        });
+
+
+p1.then(function(result){
+            console.log(result);
+            
+        }, function(err){
+            throw err;
+            });
