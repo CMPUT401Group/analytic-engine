@@ -4,8 +4,8 @@
     "timeBegin": 1474111311,
     "timeEnd": 1474111440
   },
-  "iterationCount": 100,
-  "initialReward": -1000000.0,
+  "iterationCount": 200,
+  "initialReward": -1.0,
   "reinforcementLearning": {
     "stepSize": 0.1,
     "discountRate": 0.9

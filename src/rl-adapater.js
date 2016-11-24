@@ -43,13 +43,13 @@ export default class RLAdapter {
    * @param {Date} timeEnd
    */
   train(timeBegin, timeEnd) {
-    let metrics = this.getMetrics(timeBegin, timeEnd);
+    /*let metrics = this.getMetrics(timeBegin, timeEnd);
 
     // TODO: Wrap analytic-engine-rl with node so we don't have to do this ugly thing.
     fs.writeFileSync(
       '/tmp/metric.json',
       JSON.stringify(metrics)
-    );
+    );*/
 
     console.log(analyticEngineRLPath);
     spawnSync(analyticEngineRLPath, [
@@ -58,5 +58,9 @@ export default class RLAdapter {
     ], {
       stdio:[0,1,2]  // Display to the parent's stream.
     });
+
+    return JSON.parse(fs.readFileSync('result.json', {
+      encoding: 'utf8'
+    }));
   }
 }

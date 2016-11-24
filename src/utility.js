@@ -55,6 +55,43 @@ function FindLocalMaxandMin(metric, interval) {
     return maxmin_tuple_list //lists of lists for now.
 }
 
+function generateDashboard(options) {
+    let dashboard = {
+        title: options.title,
+        time: {
+            from: options.from,
+            to: options.to
+        },
+        rows: []
+    };
+
+    for (let row of options.rows) {
+        dashboard.rows.push({
+            title: `${row.title}`,
+            height: '300px',
+            panels: [
+                {
+                    title: `${row.targetName}`,
+                    type: 'graph',
+                    span: 12,
+                    fill: 1,
+                    linewidth: 2,
+                    targets: [
+                        {
+                            'target': `${row.targetName}`
+                        }
+                    ],
+                    tooltip: {
+                        shared: true
+                    }
+                }
+            ]
+        });
+    }
+
+    return dashboard;
+}
+
 class Utility {
     objToURLParam(obj) {
         var str = "";
@@ -81,4 +118,4 @@ class Utility {
 
 let utilityInstance = new Utility();
 export default utilityInstance;
-export {Normalize, FindLocalMaxandMin};
+export {Normalize, FindLocalMaxandMin, generateDashboard};
