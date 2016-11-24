@@ -83,7 +83,11 @@ function main() {
   app.get('/call',function(req, res)  
   {
       var func = req.params.func; 
-
+      var mdate1 = req.parms.mdate1;
+      var mdate2 = req.parms.mdate2;
+      var m1 = req.parms.m1;
+      var m2 = req.parms.m2;
+    
       //parse the dates
       var start = moment.unix(mdate1).utc().format('HH:mm_YYYYMMDD');
       var end = moment.unix(mdate2).utc().format('HH:mm_YYYYMMDD');
