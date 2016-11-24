@@ -22,8 +22,6 @@ export default class RLAdapter {
 
     let metricRes = graphiteAdapter.metrics.findAll();
 
-    metricRes = metricRes.slice(6000);
-
     let allMetrics = [];
     metricRes.forEach((metric, i) => {
       let renderRes = graphiteAdapter.render.render({
