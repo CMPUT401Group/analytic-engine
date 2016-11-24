@@ -82,11 +82,11 @@ function main() {
 
   app.get('/call',function(req, res)  
   {
-      var func = req.params.func; 
-      var mdate1 = req.parms.mdate1;
-      var mdate2 = req.parms.mdate2;
-      var m1 = req.parms.m1;
-      var m2 = req.parms.m2;
+      var func = req.query.func; 
+      var mdate1 = req.query.mdate1;
+      var mdate2 = req.query.mdate2;
+      var m1 = req.query.m1;
+      var m2 = req.query.m2;
     
       //parse the dates
       var start = moment.unix(mdate1).utc().format('HH:mm_YYYYMMDD');
@@ -109,10 +109,10 @@ function main() {
 
       //apply the requested function and return the result
       var cov = new Covariance(renderRes1);
-      if (func = 'covariance'){
+      if (func = '1'){
         return cov.covariance(renderRes2);
       }
-      else if (func = 'correlation'){
+      else if (func = '2'){
         return cov.correlation(renderRes2);
       }
       else return "invalid request: function should be correlation or covariance"
