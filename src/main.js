@@ -76,15 +76,12 @@ function main() {
       var mdate2 = req.parms.mdate2;
       var m1 = req.parms.m1;
       var m2 = req.parms.m2;
-<<<<<<< HEAD
       var func = req.params.func; */
       res.json(req);
   });
 
   app.get('/call',function(req, res)  
   {
-      res.json("Hello World");
-=======
       var func = req.params.func; 
 
       //parse the dates
@@ -115,7 +112,6 @@ function main() {
         return cov.correlation(renderRes2);
       }
       else return "invalid request: function should be correlation or covariance"
->>>>>>> 6fb892f044dd167bb8c647a0c43945fe22eeebfa
   });
 
   app.listen(nodejsPort, function () {
