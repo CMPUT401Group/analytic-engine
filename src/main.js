@@ -44,6 +44,35 @@ function main() {
       var m1 = req.parms.m1;
       var m2 = req.parms.m2;
       var func = req.params.func; 
+
+      //parse the dates
+      var start = moment.unix(mdate1).utc().format('HH:mm_YYYYMMDD');
+      var end = moment.unix(mdate2).utc().format('HH:mm_YYYYMMDD');
+
+      //resolve the metrics into their respective datapoints
+      var render = new RenderAPIAdapter(graphiteURL);
+      var renderRes1 = render.render({
+            target: m1,
+            format: 'json',
+            from: start,
+            until: end,
+        });
+      var renderRes2 = render.render({
+            target: m2,
+            format: 'json',
+            from: start,
+            until: end,
+        });
+
+      //apply the requested function and return the result
+      var cov = new Covariance(renderRes1);
+      if (func = 'covariance'){
+        return cov.covariance(renderRes2);
+      }
+      else if (func = 'correlation'){
+        return cov.correlation(renderRes2);
+      }
+      else return "invalid request: function should be correlation or covariance"
   });
 
   app.listen(nodejsPort, function () {
