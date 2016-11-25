@@ -113,7 +113,7 @@ var result1 = cov.covariance(renderRes2);
 var result2 = cov.correlation(renderRes2);
 
 
-if (func = '0'){
+if (func == '0'){
     
     var jsonstring = JSON.stringify({        
         r1:result1
@@ -121,7 +121,7 @@ if (func = '0'){
     res.json(jsonstring);
 
 }
-if (func = '1'){
+else if (func == '1'){
 
    
     var jsonstring = JSON.stringify({        
