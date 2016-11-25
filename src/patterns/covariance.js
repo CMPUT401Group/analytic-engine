@@ -212,7 +212,7 @@ class Covariance extends Pattern {
     * takes a metric and an int multiplier to signify the number of standard deviations from the median a value must
     * be to be returned. Returns a list of timestamps for the identified data points
     */
-    metricDeviation(metrics, stDevMulti){
+    metricDeviation(metrics, stDevMulti=2){
 
         this.cleanNulls(metrics[0].datapoints);
         
