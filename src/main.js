@@ -94,28 +94,16 @@ function main() {
 
       //resolve the metrics into their respective datapoints
       var render = new RenderAPIAdapter(graphiteURL);
-      var renderRes1 = render.render({
-            target: m1,
-            format: 'json',
-            from: start,
-            until: end,
-        });
-      var renderRes2 = render.render({
-            target: m2,
-            format: 'json',
-            from: start,
-            until: end,
-        });
+     var jsonstring = JSON.stringify({ 
+    function: func, 
+     mdate1:  mdate1, 
+    mdate2: mdate2,
+       m1:m1,
+       m2:m2
+  });
+    res.json(jsonstring);
 
-      //apply the requested function and return the result
-      var cov = new Covariance(renderRes1);
-      if (func = 0){
-        return cov.covariance(renderRes2);
-      }
-      else if (func = 1){
-        return cov.correlation(renderRes2);
-      }
-      else return "invalid request: function should be correlation or covariance"
+     
   });
 
   app.listen(nodejsPort, function () {
