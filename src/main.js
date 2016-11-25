@@ -109,17 +109,21 @@ var renderRes2 = render.render({
 
 //apply the requested function and return the result
 var cov = new Covariance(renderRes1);
+var result1 = cov.covariance(renderRes2);
+var result2 = cov.correlation(renderRes2);
+
+
 if (func = '0'){
-    var result1 = cov.covariance(renderRes2);
+    
     var jsonstring = JSON.stringify({        
         r1:result1
     });
     res.json(jsonstring);
 
 }
-else if (func = '1'){
+if (func = '1'){
 
-    var result2 = cov.correlation(renderRes2);
+   
     var jsonstring = JSON.stringify({        
         r2:result2
     });
