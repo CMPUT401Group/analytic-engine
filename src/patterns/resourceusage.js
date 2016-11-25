@@ -21,7 +21,7 @@ getPattern() {
     /**
      * Checks how far a given format deviates from this pattern.
      *
-     * @param [
+     * @description [
      *          {
      *            target: String,
      *            datapoints: [[

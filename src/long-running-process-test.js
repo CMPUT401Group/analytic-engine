@@ -6,7 +6,7 @@ import config from 'config';
 var interpL = require( 'line-interpolate-points' );
 let graphiteURL = config.get('graphiteURL');
 /**
- * @param {[{target:string, datapoints:[]}]}
+ * @param {Array.<{target:string, datapoints:Array<{int, int}>}>}
  */
 var metric1 = [
             {
@@ -15,7 +15,7 @@ var metric1 = [
             }
         ];
 /**
- * @param {[{target:string, datapoints:[]}]}
+ * @param {Array.<{target:string, datapoints:Array<{int, int}>}>}
  */
 var metric2 = [                  
 			{

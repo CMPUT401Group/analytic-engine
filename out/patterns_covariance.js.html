@@ -37,6 +37,11 @@ import async from 'async';
 import {EpochToDate} from './../utility';
 import moment from 'moment';
 
+var interpL = require( 'line-interpolate-points' )
+var exec = require('child_process').exec;
+
+var cleaningENUM = Object.freeze({ZERO: 0, REMOVE: 1});
+
 let graphiteURL = config.get('graphiteURL');
 
 /** 
@@ -51,12 +56,12 @@ class Covariance extends Pattern {
      * Rules/patterns given are all treated as 'AND'. That is all rules/patterns
      * must be satisfied in order for error to be 0.
      *
-     * @param [
-     *          {
+     * @param Array.{Object}
+     * @description  Array&lt;Object.{
      *            target: String,
      *            data: JSON
      *          }
-     *        ] metricTarget of values which are to be used for comparison
+     *        > metricTarget of values which are to be used for comparison
      *
      */
 	constructor(metricTarget) {
@@ -98,18 +103,17 @@ class Covariance extends Pattern {
      */
     error(metrics) {
         
-    	this.cleanNulls(metrics[0].datapoints);
-		
-		var out = R("r-modules/linear-correlation.R")
-    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
-    	.callSync();
-
-        return out
+    	throw "dont use this method";
     }
-
+    /**
+    * cleans the 'null' values in a metric, interpolates points in the metrics argument to be the same number as 
+    * the metric used to initialize the class, then calcualtes the covariance between these 2 metrics and returns it
+    */
     covariance(metrics) {
 
     	this.cleanNulls(metrics[0].datapoints);
+
+        metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
 
     	var out = R("r-modules/linear-covariance.R")
     	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
@@ -118,40 +122,82 @@ class Covariance extends Pattern {
         return out
     }
 
-    correlation(metrics) {
-        //This will return a negative or positive correlation or 'NA' if one of the metrics is a flat line
-    	this.cleanNulls(metrics[0].datapoints);
+    /**
+    * @function correlation
+    * @descriptinon cleans the 'null' values in a metric, interpolates points in the metrics argument to be the same number as 
+    * the metric used to initialize the class, then calcualtes the linear correlation between these 2 metrics and returns it.
+    * 1 or -1 indicate perfect linear or negatively linear correlation respectively. less correlated data will fall into the
+    * the range of 1>x>-1
+    */
+    correlation(metrics){
+        this.cleanNulls(metrics[0].datapoints);
 
-    	var out = R("r-modules/linear-correlation.R")
-    	.data(this.metricTarget[0].datapoints, metrics[0].datapoints)
-    	.callSync();
+        metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
+
+        var out = R("r-modules/linear-correlation.R")
+        .data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+        .callSync();
 
         return out
     }
 
-/**performs a linear correlation with all metrics at the same time period as the original
-populates a dictionary metricDict: {"metric name": correlation vaue}
-Metrics which returned an error are recorded with their error in ErrorDict. Most of these are for 
-'incompatible dimentions'. 
-TODO: We can look at interpolating points*/
+    correlationAsync(metrics) {
+        //This will return a negative or positive correlation or 'NA' if one of the metrics is a flat line
+    	this.cleanNulls(metrics[0].datapoints);
+
+        metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
+        var self = this;
+
+        var p1 = new Promise(
+        // The resolver function is called with the ability to resolve or
+        // reject the promise
+        function(resolve, reject) {
+                    R("r-modules/linear-correlation.R")
+                    .data(self.metricTarget[0].datapoints, metrics[0].datapoints)
+                    .call(function(err, out) {
+                    if (err){ reject(err); } // this is sometimes coming back as a missing library. 
+                    else {resolve(out); }
+                    });  
+        })
+    
+        return p1;
+    }
+
+    /**
+    *Finds the local minima and maxima for a given timeframe in the metric data.
+    */
+    findLocalMinMax(metrics, timeframe){
+        this.cleanNulls(metrics[0].datapoints);
+
+        R("r-modules/interpolatePOI.R")
+        .data(metrics[0].datapoints)
+        .call(function(err, out) {
+            if (err){ throw err; } // this is sometimes coming back as a missing library. 
+            return out;
+            });
+    }
+
+
+
+    /**performs a linear correlation with all metrics at the same time period as the original
+    *populates a dictionary metricDict: {"metric name": correlation vaue}
+    *Metrics which returned an error are recorded with their error in ErrorDict. Most of these are for 
+    *'incompatible dimentions'. 
+    *TODO: We can look at interpolating points more effectively*/
     correlationAllMetrics(callback1){
         //TODO: move these class initializations to be static objects somewhere for better performance
         var metricAPI = new MetricsAPIAdapter(graphiteURL); 
         var render = new RenderAPIAdapter(graphiteURL);
         var allMetrics = metricAPI.findAll();
-
-        /*var smallTest = [];
-        smallTest.push(allMetrics[0]);
-        smallTest.push(allMetrics[1]);
-        smallTest.push(allMetrics[2]);
-        console.log('number of metrics: ',smallTest.length); */
+        var totalMetrics = allMetrics.length;
+        var completedMetrics = 0;
 
         var start = moment.unix(this.getStartTime()).utc().format('HH:mm_YYYYMMDD');
         var end = moment.unix(this.getEndTime()).utc().format('HH:mm_YYYYMMDD');
         var self = this;
         async.forEach(Object.keys(allMetrics), function(metricIndex, callback2) {
             let metricName = allMetrics[metricIndex];
-            render.renderAsync({
+            exec(render.renderAsync({ //creates a new thread for this
                 target: metricName,
                 format: 'json',
                 from: start,
@@ -163,8 +209,12 @@ TODO: We can look at interpolating points*/
                 }
                 else{
                     try {
+                        console.log(dataresult[0].datapoints.length);
                         let cor = self.correlation(result);
                         self.metricDict[metricName] = cor;
+                        completedMetrics++;
+                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics, " value Stored: ",cor);
+
                     }catch(e){
                         //console.log(metricName, result.length, e);
                         self.errorDict[metricName] = e;
@@ -173,24 +223,25 @@ TODO: We can look at interpolating points*/
                 }
 
             callback2();
-            });
-            //console.log(renderRes);
-            //let cor = covObj.correlation(renderRes);
-            //metricDict[metric] = cor;
+            }));
 
         }, function(err) {
                     if(err){
                         throw err;
                     }
                 //success case here
+                console.log("Dictionary Results: ");
+                console.log(self.metricDict);
                 callback1(0);
             }
         );
     }
-/**check a given metric in a large timeframe and see if it deviates significantly in that timespan
-takes a metric and an int multiplier to signify the number of standard deviations from the median a value must
-be to be returned. Returns a list of timestamps for the identified data points*/
-    metricDeviation(metrics, stDevMulti){
+
+    /**check a given metric in a large timeframe and see if it deviates significantly in that timespan
+    * takes a metric and an int multiplier to signify the number of standard deviations from the median a value must
+    * be to be returned. Returns a list of timestamps for the identified data points
+    */
+    metricDeviation(metrics, stDevMulti=2){
 
         this.cleanNulls(metrics[0].datapoints);
         
@@ -202,14 +253,67 @@ be to be returned. Returns a list of timestamps for the identified data points*/
 
     }
 
-    /**changes all the null values to 0. */
-    cleanNulls(datapoints) {
-    	datapoints = datapoints.map(function(datapoint) {
-    		if (!_.isNumber(datapoint[0])) {
-    			datapoint[0] = 0;
-    		}
-    		return 0;
-    	});
+    /**
+    * changes all the null values to 0. 
+    */
+    cleanNulls(datapoints, flag=0) {
+            //change all to zero
+       
+    	   for(let i=0; i&lt;datapoints.length; i++){
+    	       if (!_.isNumber(datapoints[i][0])) {
+                    if (flag == cleaningENUM.ZERO){
+    		  	       datapoints[i][0] = 0;
+                    }
+                    else if (flag == cleaningENUM.REMOVE) {
+                        datapoints.splice(i,1);
+                        i--;
+                    }
+    		    }
+    	    }
+           return datapoints;
+    }
+    
+
+    /**
+    * takes 2 sets of datapoints and equalizes the number of points between them by making the smaller set 
+    * the same length of the larger set.
+    * @param 2 arrays of 2D datapoints
+    * @returns [interpolatedSet1, interpolatedSet2] array containing both arrays of datapoints
+    */
+    interpolatePoints(set1, set2){
+
+        if (set1.length == 0 || set2.length ==0){
+            return null;
+        }
+        if (set1.length > set2.length){
+            set2 = interpL(set2, set1.length);
+        }
+        if (set1.length &lt; set2.length){
+            set1= interpL(set1, set2.length);
+        }
+        var ret = [];
+        ret.push(set1);
+        ret.push(set2);
+        return ret;
+    }
+
+    /**
+    *takes a single set of datapoints and makes the number of points equal to the number of points
+    *in the set which initialized the covaraince class instantiation. This ensures that when running many comparisons
+    *we do not interpolate based on already interpolated data. see correlationAllMetrics() for an example of comparing 
+    *many metrics
+    */
+    covInterpP(datapoints){
+        var set1 = this.metricTarget[0].datapoints;
+        var set2 = datapoints
+
+        if (set1.length == 0 || set2.length ==0){
+
+            throw "cannot interpolate metric of length 0" 
+        }
+            set2 = interpL(set2, set1.length);
+        
+        return set2;
     }
 
 
@@ -245,6 +349,9 @@ be to be returned. Returns a list of timestamps for the identified data points*/
 
         return new Covariance(serializedPattern.pattern);
     }
+
+
+
 }
 
 export {Covariance};
@@ -258,13 +365,13 @@ export {Covariance};
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Covariance.html">Covariance</a></li><li><a href="GraphiteAdapter.html">GraphiteAdapter</a></li><li><a href="MetricsAPIAdapter.html">MetricsAPIAdapter</a></li><li><a href="module.exports.html">exports</a></li><li><a href="Pattern.html">Pattern</a></li><li><a href="POI.html">POI</a></li><li><a href="RenderAPIAdapter.html">RenderAPIAdapter</a></li><li><a href="Threshold.html">Threshold</a></li></ul><h3>Global</h3><ul><li><a href="global.html#close">close</a></li><li><a href="global.html#deserialize">deserialize</a></li><li><a href="global.html#deserializeTHRESHOLDRULE">deserializeTHRESHOLDRULE</a></li><li><a href="global.html#error">error</a></li><li><a href="global.html#expand">expand</a></li><li><a href="global.html#find">find</a></li><li><a href="global.html#findAll">findAll</a></li><li><a href="global.html#findAllThreshold">findAllThreshold</a></li><li><a href="global.html#getPattern">getPattern</a></li><li><a href="global.html#insert">insert</a></li><li><a href="global.html#metric1">metric1</a></li><li><a href="global.html#metric2">metric2</a></li><li><a href="global.html#open">open</a></li><li><a href="global.html#out">out</a></li><li><a href="global.html#removeAll">removeAll</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#serialize">serialize</a></li><li><a href="global.html#serializeTHRESHOLDRULE">serializeTHRESHOLDRULE</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Covariance.html">Covariance</a></li><li><a href="GraphiteAdapter.html">GraphiteAdapter</a></li><li><a href="MetricsAPIAdapter.html">MetricsAPIAdapter</a></li><li><a href="module.exports.html">exports</a></li><li><a href="Pattern.html">Pattern</a></li><li><a href="POI.html">POI</a></li><li><a href="RenderAPIAdapter.html">RenderAPIAdapter</a></li><li><a href="Threshold.html">Threshold</a></li></ul><h3>Global</h3><ul><li><a href="global.html#close">close</a></li><li><a href="global.html#correlation">correlation</a></li><li><a href="global.html#deserialize">deserialize</a></li><li><a href="global.html#deserializeTHRESHOLDRULE">deserializeTHRESHOLDRULE</a></li><li><a href="global.html#error">error</a></li><li><a href="global.html#expand">expand</a></li><li><a href="global.html#find">find</a></li><li><a href="global.html#findAll">findAll</a></li><li><a href="global.html#findAllThreshold">findAllThreshold</a></li><li><a href="global.html#findAllThresholdAsync">findAllThresholdAsync</a></li><li><a href="global.html#getPattern">getPattern</a></li><li><a href="global.html#insert">insert</a></li><li><a href="global.html#metric1">metric1</a></li><li><a href="global.html#metric2">metric2</a></li><li><a href="global.html#Normalize">Normalize</a></li><li><a href="global.html#open">open</a></li><li><a href="global.html#p1">p1</a></li><li><a href="global.html#removeAll">removeAll</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderAsync">renderAsync</a></li><li><a href="global.html#renderMetrics">renderMetrics</a></li><li><a href="global.html#serialize">serialize</a></li><li><a href="global.html#serializeTHRESHOLDRULE">serializeTHRESHOLDRULE</a></li><li><a href="global.html#train">train</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Fri Nov 04 2016 20:58:21 GMT-0600 (MDT)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Nov 25 2016 14:19:18 GMT-0700 (MST)
 </footer>
 
 <script> prettyPrint(); </script>

@@ -70,7 +70,7 @@ class Threshold extends Pattern {
      * Rules/patterns given are all treated as 'AND'. That is all rules/patterns
      * must be satisfied in order for error to be 0.
      *
-     * @param [
+     * @description [
      *          {
      *            target: String,
      *            thresholdRule: THRESHOLDRULE
@@ -172,7 +172,7 @@ class Threshold extends Pattern {
 
     /**
      * @param {String} target The metric name to get a rule for
-     * @return {{target String, thresholdRule: THRESHOLDRULE, value: Number } | null}
+     * @return {{target: String, thresholdRule: THRESHOLDRULE, value: Number } | null}
      * @private
      */
     _getTargetThresholdRule(target) {

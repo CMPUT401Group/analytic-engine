@@ -28,12 +28,12 @@ class Covariance extends Pattern {
      * Rules/patterns given are all treated as 'AND'. That is all rules/patterns
      * must be satisfied in order for error to be 0.
      *
-     * @param [
-     *          {
+     * @param Array.{Object}
+     * @description  Array<Object.{
      *            target: String,
      *            data: JSON
      *          }
-     *        ] metricTarget of values which are to be used for comparison
+     *        > metricTarget of values which are to be used for comparison
      *
      */
 	constructor(metricTarget) {
@@ -95,7 +95,8 @@ class Covariance extends Pattern {
     }
 
     /**
-    * cleans the 'null' values in a metric, interpolates points in the metrics argument to be the same number as 
+    * @function correlation
+    * @descriptinon cleans the 'null' values in a metric, interpolates points in the metrics argument to be the same number as 
     * the metric used to initialize the class, then calcualtes the linear correlation between these 2 metrics and returns it.
     * 1 or -1 indicate perfect linear or negatively linear correlation respectively. less correlated data will fall into the
     * the range of 1>x>-1

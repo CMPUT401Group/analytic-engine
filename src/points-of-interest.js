@@ -74,7 +74,7 @@ export default class POI {
     /**
      * Inserts pattern.
      *
-     * @param {[Pattern]} patterns Array of patterns.
+     * @param {Array<Object.<pattern>>} patterns Array of patterns.
      */
     insert(patterns) {
         assert(_.isArray(patterns), `${POI.name}:insert should be given an Array of ${Pattern.name}.`);
@@ -118,7 +118,7 @@ export default class POI {
     /**
      * Gets all points of interest.
      *
-     * @returns {[Pattern]} Array of patterns.
+     * @returns {Array<Object.<pattern>>} Array of patterns.
      */
     findAll() {
         let fiber = Fiber.current;

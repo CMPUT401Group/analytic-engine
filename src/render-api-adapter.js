@@ -17,7 +17,8 @@ export default class RenderAPIAdapter {
     }
 
     /**
-     * GET /render
+     * @function render
+     * @description GET /render
      * @see https://graphite-api.readthedocs.io/en/latest/api.html#the-render-api-render
      *
      * @param options
@@ -53,14 +54,13 @@ export default class RenderAPIAdapter {
 
     /**
      * Given a list of render/ request.
-     * @param metrics [
-     *   {
+     * @param metrics: Array.{Object}
+     * @description metrics: Array.<{
      *     target: String,
      *     format: String,
      *     from: Number,
      *     until: Number
-     *   }
-     * ] A list of render request.
+     *   }> A list of render request.
      * @param logProgress If true, logs progress in console.
      * @returns Promise that if success returns Array of metrics.
      */
