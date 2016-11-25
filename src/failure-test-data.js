@@ -7,8 +7,8 @@ import {generateDashboard} from './utility';
 
 // This will be the main executable.
 function main() {
-  let timeBegin = new Date(Date.UTC(2016, 8, 17, 11, 1, 0));
-  let timeEnd = new Date(Date.UTC(2016, 8, 17, 11, 26, 0));
+  let timeBegin = new Date(Date.UTC(2016, 8, 17, 5, 0, 0));
+  let timeEnd = new Date(Date.UTC(2016, 8, 17, 13, 0, 0));
   let result = (new RLAdapter).train(timeBegin, timeEnd);
 
   // todo: move this job to c++
@@ -40,7 +40,7 @@ function main() {
   });
 
   fs.writeFileSync(
-    'metric.json',
+    'dashboard.json',
     JSON.stringify(generateDashboard(dashboardOptions))
   );
 }
