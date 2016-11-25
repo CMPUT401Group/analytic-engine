@@ -130,6 +130,13 @@ else if (func == '1'){
     res.json(jsonstring);
 
 }
+else if (func == '2'){
+    var result3 = cov.metricDeviation(renderRes1);
+    var jsonstring = JSON.stringify({        
+        r3:result3
+    });
+    res.json(jsonstring);
+}
 
 else res.send("invalid request: function should be correlation or covariance");
 
