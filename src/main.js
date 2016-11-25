@@ -107,12 +107,6 @@ var renderRes2 = render.render({
     until: end,
 });
 
-var jsonstring = JSON.stringify({        
-    m1r:m1,
-    m2r:m2
-});
-res.json(jsonstring);
-
 //apply the requested function and return the result
 var cov = new Covariance(renderRes1);
 if (func = '0'){
