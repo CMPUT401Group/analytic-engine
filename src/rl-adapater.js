@@ -43,13 +43,13 @@ export default class RLAdapter {
    * @param {Date} timeEnd
    */
   train(timeBegin, timeEnd) {
-    /*let metrics = this.getMetrics(timeBegin, timeEnd);
+    let metrics = this.getMetrics(timeBegin, timeEnd);
 
     // TODO: Wrap analytic-engine-rl with node so we don't have to do this ugly thing.
     fs.writeFileSync(
       '/tmp/metric.json',
       JSON.stringify(metrics)
-    );*/
+    );
 
     console.log(analyticEngineRLPath);
     spawnSync(analyticEngineRLPath, [
