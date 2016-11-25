@@ -109,10 +109,10 @@ function main() {
 
       //apply the requested function and return the result
       var cov = new Covariance(renderRes1);
-      if (func = '1'){
+      if (func = 0){
         return cov.covariance(renderRes2);
       }
-      else if (func = '2'){
+      else if (func = 1){
         return cov.correlation(renderRes2);
       }
       else return "invalid request: function should be correlation or covariance"
