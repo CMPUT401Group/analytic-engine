@@ -76,6 +76,8 @@ function generateDashboard(options) {
                     span: 12,
                     fill: 1,
                     linewidth: 2,
+                    pointradius: 5,
+                    points: true,
                     targets: [
                         {
                             'target': `${row.targetName}`
