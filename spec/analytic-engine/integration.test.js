@@ -12,7 +12,7 @@ import {Covariance} from './../../src/patterns';
 
 let graphiteURL = config.get('graphiteURL');
 
-var renderRes;
+var renderRes1;
 var renderRes2;
 
 describe("AnalyticEngine - integration", function() {
@@ -21,12 +21,24 @@ describe("AnalyticEngine - integration", function() {
     });
 
     it("find - ensure @see https://graphite-api.readthedocs.io/en/latest/api.html#the-render-api-render", function() {
-        renderRes = this.render.render({
-            target: 'IN.stb-sim.dean.RequestTiming.count',
+        renderRes1 = this.render.render({
+            target: 'invidi.webapp.localhost_localdomain.request.total_response_time.mean',
             format: 'json',
-            from: '17:00_20160921',
-            until: '18:00_20160921',
+            from: '11:00_20160917',
+            until: '11:30_20160917',
         });
+
+        renderRes2 = this.render.render({
+            target: 'invidi.webapp.localhost_localdomain.database.request.findEtl.error_gauge',
+            format: 'json',
+            from: '11:00_20160917',
+            until: '11:30_20160917',
+        });
+
+        var cov = new Covariance(renderRes1);
+        //console.log("Covariance",cov.covariance(renderRes2),"correlation", cov.correlation(renderRes2));
+        //console.log("data",renderRes2[0].datapoints);
+
     });
     /*
     it("something", function(done) {

@@ -117,13 +117,14 @@ class Covariance extends Pattern {
     	this.cleanNulls(metrics[0].datapoints);
 
         metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
+        var self = this;
 
         var p1 = new Promise(
         // The resolver function is called with the ability to resolve or
         // reject the promise
         function(resolve, reject) {
                     R("r-modules/linear-correlation.R")
-                    .data(this.metricTarget[0].datapoints, metrics[0].datapoints)
+                    .data(self.metricTarget[0].datapoints, metrics[0].datapoints)
                     .call(function(err, out) {
                     if (err){ reject(err); } // this is sometimes coming back as a missing library. 
                     else {resolve(out); }
@@ -211,7 +212,7 @@ class Covariance extends Pattern {
     * takes a metric and an int multiplier to signify the number of standard deviations from the median a value must
     * be to be returned. Returns a list of timestamps for the identified data points
     */
-    metricDeviation(metrics, stDevMulti){
+    metricDeviation(metrics, stDevMulti=2){
 
         this.cleanNulls(metrics[0].datapoints);
         
@@ -268,13 +269,17 @@ class Covariance extends Pattern {
     }
 
     /**
-    * adjusts the number of points in datapoints to equal the number of datapoints in the class's initial metric
+    *takes a single set of datapoints and makes the number of points equal to the number of points
+    *in the set which initialized the covaraince class instantiation. This ensures that when running many comparisons
+    *we do not interpolate based on already interpolated data. see correlationAllMetrics() for an example of comparing 
+    *many metrics
     */
     covInterpP(datapoints){
         var set1 = this.metricTarget[0].datapoints;
         var set2 = datapoints
 
         if (set1.length == 0 || set2.length ==0){
+
             throw "cannot interpolate metric of length 0" 
         }
             set2 = interpL(set2, set1.length);

@@ -7,7 +7,7 @@ This package is the **Analytic Engine** in the RunWith-IT stack.
 
 ## Requirements
 1. r-statistics
-2. node
+2. node 4.6.2
 3. npm (should be installed automatically when node is installed).
 4. gulp (do via `npm install -g gulp`)
 5. For testing, `npm install -g jasmine`
@@ -41,5 +41,6 @@ Tests utilize the Jasmine test framework. They should all be placed in _spec/ana
 * we need to create the api to talk to a front end of some kind. This api just needs to call certain methods or functions which are performing anaysis.
 * we need to save the results of anaysis in the database in case the program terminate
 * we need a way to convert that saved output into a JSON grafana dashboard (ex. top 20 most correlated metrics to the search should create a dashboard with those metrics ordered on the page)
+
 
 
