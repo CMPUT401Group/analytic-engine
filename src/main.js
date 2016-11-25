@@ -126,7 +126,7 @@ else if (func = '1'){
     res.json(jsonstring);
 
 }
-else return "invalid request: function should be correlation or covariance"
+else res.send("invalid request: function should be correlation or covariance");
 
      
   });
