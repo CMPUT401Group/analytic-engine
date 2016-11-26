@@ -20,7 +20,7 @@ function indexFromTimeAfter(metrics) {
 //Smooths out the datapoints for a more accurate normalization
 // of the data set
 function metricSmoothing(metrics){
-    var smoothData
+    var smoothData = R("r-modules/Smoothing.R");
     var cleanmetrics = covariance.cleanNulls(metrics[0]);
     return smoothData
 }
@@ -34,11 +34,14 @@ function metricSmoothing(metrics){
  * method is useful when the data set does not contain outliers.
 */
 function Normalize(metric, timeFrame){
-    R("r-modules/Normalize.R");
     // we want to smooth the data first before we normalize
     // otherwise we will get skewed results
-    var metrics = metricSmoothing(metric);
+    //      var metrics = metricSmoothing(out);
     // data will be in the ranges of -1 to 1?
+    var normalized_data = R("r-modules/Normalize.R")
+        .data(metric[0].datapoints)
+        .callSync();
+    console.log(normalized_data)
     return normalized_data;
 }
 
