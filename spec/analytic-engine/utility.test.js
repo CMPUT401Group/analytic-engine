@@ -32,9 +32,15 @@ describe("AnalyticEngine - Utility", function() {
         expect(utility.objToURLParam(obj)).toBe(expectedURLParam);
     });
 
-    it("Normalize the data set so that it is in a range of 0-1", function () {
 
-        expect(Normalize(default_metric, 1)).toBe(metric_expected[0].datapoints)
+});
+
+describe("Test for normalization", function () {
+    let normal = Normalize(default_metric, 1)
+    it("Normalize the data set so that it is in a range of -1 to 1", function () {
+
+        expect(normal).toEqual(metric_expected[0].datapoints)
 
     });
-});
+
+})

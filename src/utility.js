@@ -41,7 +41,6 @@ function Normalize(metric, timeFrame){
     var normalized_data = R("r-modules/Normalize.R")
         .data(metric[0].datapoints)
         .callSync();
-    console.log(normalized_data)
     return normalized_data;
 }
 
