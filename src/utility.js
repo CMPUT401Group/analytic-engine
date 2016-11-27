@@ -19,9 +19,24 @@ function indexFromTimeAfter(metrics) {
 
 //Smooths out the datapoints for a more accurate normalization
 // of the data set
-function metricSmoothing(metrics){
-    var smoothData = R("r-modules/Smoothing.R");
-    var cleanmetrics = covariance.cleanNulls(metrics[0]);
+function MetricSmoothing(metrics, loop=3){
+    var i = 1;
+    var smoothData = R("r-modules/Smoothing.R").data(metrics[0].datapoints).callSync();
+
+    while (i < loop){
+        smoothData = R("r-modules/Smoothing.R").data(smoothData).callSync();
+        i++;
+    }
+    for (i = 0; i < smoothData.length; i++) {
+        if(smoothData[i][0] == null){
+            smoothData[i][0] = null;
+        }
+        else {
+            smoothData[i][0] = Number(smoothData[i][0]);
+        }
+    }
+    //var cleanmetrics = covariance.cleanNulls(metrics[0]);
+    //console.log(smoothData);
     return smoothData
 }
 
@@ -36,7 +51,7 @@ function metricSmoothing(metrics){
 function Normalize(metric, timeFrame){
     // we want to smooth the data first before we normalize
     // otherwise we will get skewed results
-    //      var metrics = metricSmoothing(out);
+    // var metrics = metricSmoothing(metric);
     // data will be in the ranges of -1 to 1?
     return R("r-modules/Normalize.R").data(metric[0].datapoints).callSync();
 }
@@ -58,7 +73,7 @@ function FindLocalMaxandMin(metric, interval=4) {
     while (i < array_length) {
         while (j < interval){
             datapoints_list.push(metric[0].datapoints.shift());
-            j++
+            j++;
         }
         // In the case of duplicate points for local max and min, it always returns
         // the local max or min of the earliest one:
@@ -146,4 +161,4 @@ class Utility {
 
 let utilityInstance = new Utility();
 export default utilityInstance;
-export {Normalize, FindLocalMaxandMin, generateDashboard};
+export {Normalize, FindLocalMaxandMin, generateDashboard, MetricSmoothing, indexFromTimeAfter, indexFromTimeBefore};
