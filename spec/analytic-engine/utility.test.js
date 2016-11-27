@@ -1,5 +1,5 @@
 import utility from '../../src/utility';
-import {Normalize} from '../../src/utility';
+import {Normalize, FindLocalMaxandMin} from '../../src/utility';
 
 /**
  * @description Test suite for utility.js:
@@ -9,6 +9,28 @@ import {Normalize} from '../../src/utility';
  * moment JS_lib;
  * @see http://momentjs.com/docs/
  */
+
+var default_metric_month = [
+    {
+        target: 'dummy.metric.1',
+        datapoints: [[72, '20160901'], [34, '20160902'], [39, '20160903'], [63, '20160904'], [17, '20160905'],
+            [100, '20160906'], [18, '20160907'], [37, '20160908'], [98, '20160909'], [98, '20160910'], [76, '20160911'],
+            [87, '20160912'], [5, '20160913'], [12, '20160914'], [54, '20160915'], [89, '20160916'], [18, '20160917'],
+            [55, '20160918'], [54, '20160919'], [52, '20160920'], [67, '20160921'], [5, '20160922'], [41, '20160923'],
+            [13, '20160924'], [31, '20160925'], [61, '20160926'], [87, '20160927'], [4, '20160928']]
+
+    }
+];
+
+var expected_metric_maxmin = [
+    {
+        target: 'dummy.metric.1',
+        datapoints: [['20160902', '20160901'], ['20160905', '20160906'], ['20160911', '20160909'],
+                    ['20160913', '20160916'], ['20160917', '20160918'], ['20160922', '20160921'], ['20160928', '20160927']]
+
+    }
+];
+
 var default_metric = [
     {
         target: 'dummy.metric.1',
@@ -36,11 +58,20 @@ describe("AnalyticEngine - Utility", function() {
 });
 
 describe("Test for normalization", function () {
-    let normal = Normalize(default_metric, 1)
+    let normal = Normalize(default_metric, 1);
     it("Normalize the data set so that it is in a range of -1 to 1", function () {
 
-        expect(normal).toEqual(metric_expected[0].datapoints)
+        expect(normal).toEqual(metric_expected[0].datapoints);
 
     });
 
-})
+});
+
+describe("Test for getting min and max at a local area of a specified time frame", function () {
+    let max_min = FindLocalMaxandMin(default_metric_month, 4);
+    it("Max and Min found from specified metrics", function () {
+
+        expect(max_min).toEqual(expected_metric_maxmin[0].datapoints);
+    });
+
+});
