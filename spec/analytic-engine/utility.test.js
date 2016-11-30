@@ -64,7 +64,7 @@ var default_metric = [
 var metric_expected = [
     {
         target: 'dummy.metric.2',
-        datapoints: [[0, 1], [0.25, 2], [0.5, 3], [0.75, 4], [1, 5]]//moved +1 in the x axis from metric1
+        datapoints: [[0, 1], [0.25, 2], [0.5, 3], [0.75, 4], [1, 5]]
     }
 ];
 describe("AnalyticEngine - Utility", function() {
