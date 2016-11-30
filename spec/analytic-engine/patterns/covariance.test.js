@@ -89,7 +89,7 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
 /*------------------------------------------------------------------------
     correlation and covariance
 ------------------------------------------------------------------------*/
-    /*describe("async test", function() {
+    describe("async test", function() {
         var returnedResult;
         beforeEach(function(done) {
             let cov = new Covariance(metric1);
@@ -105,7 +105,7 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
             //this is perfectly linearly correlated but moved +1
         });
 
-    });*/
+    });
     
     
 	it ('negative correlation', function() {

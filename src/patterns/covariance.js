@@ -168,7 +168,7 @@ class Covariance extends Pattern {
         var end = moment.unix(this.getEndTime()).utc().format('HH:mm_YYYYMMDD');
         var self = this;
         async.forEach(Object.keys(allMetrics), function(metricIndex, callback2) {
-            let metricName = allMetrics[metricIndex];
+            var metricName = allMetrics[metricIndex];
             exec(render.renderAsync({ //creates a new thread for this
                 target: metricName,
                 format: 'json',
@@ -181,10 +181,12 @@ class Covariance extends Pattern {
                 }
                 else{
                     try {
-                        let cor = self.correlation(result);
-                        self.metricDict[metricName] = cor;
-                        completedMetrics++;
-                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics, " value Stored: ",cor);
+                        let cor = self.correlationAsync(result);
+                        self.metricDict[metricName] = cor.then(function(result){
+                                    completedMetrics++;
+                                    console.log("Completed: ",completedMetrics,"/" ,totalMetrics, " value Stored: ",metricDict[metricName],result);
+                                    return result;
+                                });
 
                     }catch(e){
                         //console.log(metricName, result.length, e);
