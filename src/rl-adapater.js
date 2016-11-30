@@ -12,17 +12,17 @@ let mongodPort = config.get('mongodPort');
 let analyticEngineRLPath = config.get('analytic-engine-rl-cli-path');
 
 export default class RLAdapter {
-  getMetrics(timeBegin, timeEnd) {
+  acquireMetrics(timeBegin, timeEnd, destFile) {
     let graphiteAdapter = new GraphiteAdapter(graphiteURL);
 
     var timeBeginUTC = moment(timeBegin).utc().format('HH:mm_YYYYMMDD');
     var timeEndUTC = moment(timeEnd).utc().format('HH:mm_YYYYMMDD');
 
-    console.log(timeBeginUTC, timeEndUTC);
-
     let metricRes = graphiteAdapter.metrics.findAll();
+    metricRes = metricRes.slice(7000);
 
-    let allMetrics = [];
+    //let allMetrics = [];
+    fs.writeFileSync(destFile, '[');
     metricRes.forEach((metric, i) => {
       let renderRes = graphiteAdapter.render.render({
         target: metric,
@@ -31,11 +31,17 @@ export default class RLAdapter {
         until: timeEndUTC,
       });
 
-      allMetrics.push(renderRes);
+      if (i != metricRes.length - 1) {
+        fs.appendFileSync(destFile, JSON.stringify(renderRes) + ',');
+      } else {
+        fs.appendFileSync(destFile, JSON.stringify(renderRes));
+      }
+
       console.log(`${i} in ${metricRes.length}`);
     });
+    fs.appendFileSync(destFile, ']');
 
-    return allMetrics;
+    //return allMetrics;
   }
 
   /**
@@ -43,13 +49,7 @@ export default class RLAdapter {
    * @param {Date} timeEnd
    */
   train(timeBegin, timeEnd) {
-    let metrics = this.getMetrics(timeBegin, timeEnd);
-
-    // TODO: Wrap analytic-engine-rl with node so we don't have to do this ugly thing.
-    fs.writeFileSync(
-      '/tmp/metric.json',
-      JSON.stringify(metrics)
-    );
+    this.acquireMetrics(timeBegin, timeEnd, '/tmp/metric.json');
 
     console.log(analyticEngineRLPath);
     spawnSync(analyticEngineRLPath, [

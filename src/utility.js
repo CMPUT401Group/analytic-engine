@@ -19,9 +19,24 @@ function indexFromTimeAfter(metrics) {
 
 //Smooths out the datapoints for a more accurate normalization
 // of the data set
-function metricSmoothing(metrics){
-    var smoothData
-    var cleanmetrics = covariance.cleanNulls(metrics[0]);
+function MetricSmoothing(metrics, loop=3){
+    var i = 1;
+    var smoothData = R("r-modules/Smoothing.R").data(metrics[0].datapoints).callSync();
+
+    while (i < loop){
+        smoothData = R("r-modules/Smoothing.R").data(smoothData).callSync();
+        i++;
+    }
+    for (i = 0; i < smoothData.length; i++) {
+        if(smoothData[i][0] == null){
+            smoothData[i][0] = null;
+        }
+        else {
+            smoothData[i][0] = Number(smoothData[i][0]);
+        }
+    }
+    //var cleanmetrics = covariance.cleanNulls(metrics[0]);
+    //console.log(smoothData);
     return smoothData
 }
 
@@ -34,25 +49,51 @@ function metricSmoothing(metrics){
  * method is useful when the data set does not contain outliers.
 */
 function Normalize(metric, timeFrame){
-    R("r-modules/Normalize.R");
     // we want to smooth the data first before we normalize
     // otherwise we will get skewed results
-    var metrics = metricSmoothing(metric);
+    // var metrics = metricSmoothing(metric);
     // data will be in the ranges of -1 to 1?
-    return normalized_data;
+    return R("r-modules/Normalize.R").data(metric[0].datapoints).callSync();
 }
 
 //finds the local max and minimum of a data set, more
 //accurate results if we use a normailzed data set
-function FindLocalMaxandMin(metric, interval) {
-    R("r-modules/interpolatePOI.R");
-    var timeInterval = interval;
+function FindLocalMaxandMin(metric, interval=4) {
+    // rather go lower in the indexing vs higher, as to avoid
+    // index out of range errors
+    var array_length = Math.floor((metric[0].datapoints.length)/interval);
+    var maxmin_tuple_list = [];
+    var datapoints_list = [];
+    var i = 0;
+    var j = 0;
+    // I know this is an inefficient means to do this, but I was
+    // experiencing erroneous behaviour from the r-script output
+    // therefore I split the interpolationPOI into two R files.
+    // as well resorted to javascript loops as well.
+    while (i < array_length) {
+        while (j < interval){
+            datapoints_list.push(metric[0].datapoints.shift());
+            j++;
+        }
+        // In the case of duplicate points for local max and min, it always returns
+        // the local max or min of the earliest one:
+        //
+        // i.e. if these two were tied for the max [98, '20160909'], [98, '20160910']
+        // it would return with '20160909' as its time (Seen in test case)
+        // (Could also alter R code to return more than just a single max and min as well)
 
 
-    //returns max and minimum points for a given
+        maxmin_tuple_list.push([R("r-modules/min.R").data(datapoints_list).callSync(),
+                               R("r-modules/max.R").data(datapoints_list).callSync()]);
+        datapoints_list = [];
+        j = 0;
+        i ++;
+
+    }
+    //returns the times of the min and max points for a given
     // periods/intervals over a given time frame
-    // Default is 10min periods.
-    return maxmin_tuple_list //lists of lists for now.
+    // Default is 4 data point intervals
+    return maxmin_tuple_list ;//lists of lists for now.
 }
 
 function generateDashboard(options) {
@@ -120,4 +161,4 @@ class Utility {
 
 let utilityInstance = new Utility();
 export default utilityInstance;
-export {Normalize, FindLocalMaxandMin, generateDashboard};
+export {Normalize, FindLocalMaxandMin, generateDashboard, MetricSmoothing, indexFromTimeAfter, indexFromTimeBefore};

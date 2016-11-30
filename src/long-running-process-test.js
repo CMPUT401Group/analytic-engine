@@ -43,5 +43,9 @@ var renderRes = render.render({
         }); 
 let cov = new Covariance(renderRes);
 
+function done(){
+    //do nothing becase we're printing the dictionary elsewhere.
+}
+
 cov.correlationAllMetrics( ()=> done() );// takes forever (>30 min)
 //console.log(out);

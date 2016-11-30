@@ -155,7 +155,7 @@ class Covariance extends Pattern {
     *populates a dictionary metricDict: {"metric name": correlation vaue}
     *Metrics which returned an error are recorded with their error in ErrorDict. Most of these are for 
     *'incompatible dimentions'. 
-    *TODO: We can look at interpolating points more effectively*/
+    */
     correlationAllMetrics(callback1){
         //TODO: move these class initializations to be static objects somewhere for better performance
         var metricAPI = new MetricsAPIAdapter(graphiteURL); 
@@ -181,7 +181,6 @@ class Covariance extends Pattern {
                 }
                 else{
                     try {
-                        console.log(dataresult[0].datapoints.length);
                         let cor = self.correlation(result);
                         self.metricDict[metricName] = cor;
                         completedMetrics++;
@@ -204,6 +203,8 @@ class Covariance extends Pattern {
                 //success case here
                 console.log("Dictionary Results: ");
                 console.log(self.metricDict);
+                console.log("Errors: ");
+                console.log(self.errorDict);
                 callback1(0);
             }
         );
