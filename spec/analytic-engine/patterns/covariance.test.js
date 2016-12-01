@@ -101,8 +101,7 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
                 }
         });
 	   it ('complete correlation', function() {
-            expect(returnedResult).toEqual(1.0); //WHY DOES THIS TEST FAIL!?
-            //this is perfectly linearly correlated but moved +1
+            expect(returnedResult).toEqual(1.0); 
         });
 
     });

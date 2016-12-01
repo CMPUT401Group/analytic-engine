@@ -169,7 +169,7 @@ class Covariance extends Pattern {
         var self = this;
         async.forEach(Object.keys(allMetrics), function(metricIndex, callback2) {
             var metricName = allMetrics[metricIndex];
-            exec(render.renderAsync({ //creates a new thread for this
+            render.renderAsync({ //creates a new thread for this
                 target: metricName,
                 format: 'json',
                 from: start,
@@ -181,22 +181,20 @@ class Covariance extends Pattern {
                 }
                 else{
                     try {
-                        let cor = self.correlationAsync(result);
-                        self.metricDict[metricName] = cor.then(function(result){
-                                    completedMetrics++;
-                                    console.log("Completed: ",completedMetrics,"/" ,totalMetrics, " value Stored: ",metricDict[metricName],result);
-                                    return result;
-                                });
+                        let cor = self.correlation(result);
+                        let cov = self.covariance(result);
+                        self.metricDict[metricName] = [cor,cov];
+                        completedMetrics++;
+                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics," value Stored: ",self.metricDict[metricName]);
 
                     }catch(e){
-                        //console.log(metricName, result.length, e);
+                        console.log(metricName, result.length, e);
                         self.errorDict[metricName] = e;
                     }
-
                 }
 
             callback2();
-            }));
+            });
 
         }, function(err) {
                     if(err){
