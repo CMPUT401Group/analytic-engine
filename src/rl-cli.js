@@ -21,7 +21,7 @@ function main() {
       "stepSize": 0.1,
       "discountRate": 0.9
     },
-    "resultFile": "result.json"
+    "resultFile": "/tmp/result.json"
   };
 
   let result = (new RLAdapter).train(config);
