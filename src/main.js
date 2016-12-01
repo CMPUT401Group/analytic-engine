@@ -94,58 +94,62 @@ function main() {
 
       //resolve the metrics into their respective datapoints
       var render = new RenderAPIAdapter(graphiteURL);
-var renderRes1 = render.render({
-    target: m1,
-    format: 'json',
-    from: start,
-    until: end,
-});
-var renderRes2 = render.render({
-    target: m2,
-    format: 'json',
-    from: start,
-    until: end,
-});
+      var renderRes1 = render.render({
+        target: m1,
+        format: 'json',
+        from: start,
+        until: end,
+      });
+      var renderRes2 = render.render({
+        target: m2,
+       format: 'json',
+       from: start,
+        until: end,
+      });
 
-//apply the requested function and return the result
-var cov = new Covariance(renderRes1);
-
-
+      //apply the requested function and return the result
+      var cov = new Covariance(renderRes1);
 
 
-if (func == '0'){
-    var result1 = cov.covariance(renderRes2);
-    var jsonstring = JSON.stringify({        
-        r1:result1
-    });
-    res.json(jsonstring);
 
-}
-else if (func == '1'){
 
-    var result2 = cov.correlation(renderRes2);
-    var jsonstring = JSON.stringify({        
-        r2:result2
-    });
-    res.json(jsonstring);
+      if (func == '0'){
+          var result1 = cov.covariance(renderRes2);
+          var jsonstring = JSON.stringify({        
+              r1:result1
+          });
+          res.json(jsonstring);
 
-}
-else if (func == '2'){
-    var result3 = cov.metricDeviation(renderRes1);
-    var jsonstring = JSON.stringify({        
-        r3:result3
-    });
-    res.json(jsonstring);
-}
+      }
+      else if (func == '1'){
 
-else res.send("invalid request: function should be correlation or covariance");
+          var result2 = cov.correlation(renderRes2);
+          var jsonstring = JSON.stringify({        
+              r2:result2
+          });
+          res.json(jsonstring);
 
-     
+      }
+      else if (func == '2'){
+          var result3 = cov.metricDeviation(renderRes1);
+          var jsonstring = JSON.stringify({        
+              r3:result3
+          });
+          res.json(jsonstring);
+      }
+
+      else res.send("invalid request: function should be correlation or covariance");
+
+           
+        });
+
+        app.listen(nodejsPort, function () {
+          console.log('Example app listening on port: ',nodejsPort);
   });
 
-  app.listen(nodejsPort, function () {
-    console.log('Example app listening on port: ',nodejsPort);
-  });
+
+
+        
 }
 
 // Here we run the main executable.
