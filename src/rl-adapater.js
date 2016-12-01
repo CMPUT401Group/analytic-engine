@@ -21,11 +21,11 @@ export default class RLAdapter {
    * @param {Date} timeBegin
    * @param {Date} timeEnd
    */
-  train(timeBegin, timeEnd, config) {
+  train(config) {
     let metricFile = '/tmp/metric.json';
     let configFile = '/tmp/analytic-engine-rl-config.json';
 
-    //this.acquireMetrics(timeBegin, timeEnd, metricFile);
+    this.acquireMetrics(config.timeBegin, config.timeEnd, metricFile);
 
     fs.writeFileSync(configFile, JSON.stringify(config));
 
