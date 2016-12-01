@@ -41,6 +41,7 @@ var renderRes = render.render({
             from: '17:00_20160921',
             until: '18:00_20160921',
         }); 
+
 let cov = new Covariance(renderRes);
 
 function done(){

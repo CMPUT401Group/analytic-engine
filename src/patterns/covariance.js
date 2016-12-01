@@ -284,8 +284,13 @@ class Covariance extends Pattern {
 
             throw "cannot interpolate metric of length 0" 
         }
+        if (set1.length > set2.length){
             set2 = interpL(set2, set1.length);
-        
+        }
+        else if (set2.length > set1.length){
+            set2 = interpL(set1, set2.length);
+        }
+        //if both are equal length, do nothing
         return set2;
     }
 

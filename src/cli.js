@@ -1,4 +1,6 @@
 import config from 'config';
+import RenderAPIAdapter from './render-api-adapter';
+import {Covariance} from './patterns';
 const commandLineArgs = require('command-line-args')
 
 let graphiteURL = config.get('graphiteURL');
@@ -7,10 +9,10 @@ const optionDefinitions = [
   { name: 'function', type: String, multiple: false, defaultOption: true }, // this is the type of analysis
   { name: 'metric1',  type: String },
   { name: 'metric2', type: String },
-  { name: 'm1_start',  type: Number },
-  { name: 'm1_end',  type: Number },
-  { name: 'm2_start',  type: Number },
-  { name: 'm2_end', type: Number },
+  { name: 'm1_start',  type: String },
+  { name: 'm1_end',  type: String },
+  { name: 'm2_start',  type: String },
+  { name: 'm2_end', type: String },
   { name: 'help', alias: 'h', type: Boolean }
 ]
 
@@ -26,6 +28,12 @@ if (options.help == true){
 	//output the help message
 	helpMsg();
 }
+if (!options.hasOwnProperty("m2_start")){
+	options.m2_start = options.m1_start //reuse the first date
+}
+if (!options.hasOwnProperty("m2_end")){
+	options.m2_end = options.m1_end 
+}
 
 switch(options.function.toLowerCase()) {
     case 'correlation':
@@ -36,37 +44,44 @@ switch(options.function.toLowerCase()) {
       var renderRes1 = render.render({
         target: options.metric1,
         format: 'json',
-        from: start,
-        until: end,
+        from: options.m1_start,
+        until: options.m1_end,
       });
       var renderRes2 = render.render({
         target: options.metric2,
-       format: 'json',
-       from: start,
-        until: end,
+        format: 'json',
+        from: options.m2_start,
+        until: options.m2_end,
       });
 
       //apply the requested function and return the result
       var cov = new Covariance(renderRes1);
+      var result = cov.correlation(renderRes2);
+      console.log('Result: ', result);
 
         break;
-    case 'covariance'::
+    case 'covariance':
         //do something
         break;
 
     
-    case 'deviation'::
+    case 'deviation':
         //do something
         break;
 
-    case 'search'::
+    case 'search':
         //do something
         break;
 
-    case 'entailment_search'::
+    case 'entailment_search':
         //do something
         break;
 
     default:
         helpMsg();
 } 
+
+/* node dist/cli.js correlation --metric1 IN.stb-sim.dean.RequestTiming.count --metric2 "IN.stb-sim.dean.RequestTiming.count" \
+--m1_start 17:00_20160921 --m1_end 18:00_20160921 --m2_start
+
+*/
