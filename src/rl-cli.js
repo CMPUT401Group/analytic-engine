@@ -7,9 +7,24 @@ import {generateDashboard} from './utility';
 
 // This will be the main executable.
 function main() {
-  let timeBegin = new Date(Date.UTC(2016, 8, 17, 5, 0, 0));
-  let timeEnd = new Date(Date.UTC(2016, 8, 17, 13, 0, 0));
-  let result = (new RLAdapter).train(timeBegin, timeEnd);
+  let config = {
+    "goalPattern": {
+      "metric": "invidi.webapp.localhost_localdomain.request.total_response_time.mean",
+      "timeBegin": 1474106851,
+      "timeEnd":   1474153707
+    },
+    "iterationCount": 10000,
+    "initialReward": -1000.0,
+    "reinforcementLearning": {
+      "stepSize": 0.1,
+      "discountRate": 0.9
+    },
+    "resultFile": "result.json"
+  };
+
+  let timeBegin = new Date(Date.UTC(2016, 8, 15, 0, 0, 0));
+  let timeEnd = new Date(Date.UTC(2016, 8, 21, 23, 0, 0));
+  let result = (new RLAdapter).train(timeBegin, timeEnd, config);
 
   // todo: move this job to c++
   result = result.filter(r => r.reward != null);

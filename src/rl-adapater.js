@@ -14,48 +14,22 @@ let analyticEngineRLPath = config.get('analytic-engine-rl-cli-path');
 export default class RLAdapter {
   acquireMetrics(timeBegin, timeEnd, destFile) {
     let graphiteAdapter = new GraphiteAdapter(graphiteURL);
-
-    var timeBeginUTC = moment(timeBegin).utc().format('HH:mm_YYYYMMDD');
-    var timeEndUTC = moment(timeEnd).utc().format('HH:mm_YYYYMMDD');
-
-    let metricRes = graphiteAdapter.metrics.findAll();
-    metricRes = metricRes.slice(7000);
-
-    //let allMetrics = [];
-    fs.writeFileSync(destFile, '[');
-    metricRes.forEach((metric, i) => {
-      let renderRes = graphiteAdapter.render.render({
-        target: metric,
-        format: 'json',
-        from: timeBeginUTC,
-        until: timeEndUTC,
-      });
-
-      if (i != metricRes.length - 1) {
-        fs.appendFileSync(destFile, JSON.stringify(renderRes) + ',');
-      } else {
-        fs.appendFileSync(destFile, JSON.stringify(renderRes));
-      }
-
-      console.log(`${i} in ${metricRes.length}`);
-    });
-    fs.appendFileSync(destFile, ']');
-
-    //return allMetrics;
+    graphiteAdapter.renderAllMetrics(timeBegin, timeEnd, destFile);
   }
 
   /**
    * @param {Date} timeBegin
    * @param {Date} timeEnd
    */
-  train(timeBegin, timeEnd) {
-    this.acquireMetrics(timeBegin, timeEnd, '/tmp/metric.json');
+  train(timeBegin, timeEnd, config) {
+    let metricFile = '/tmp/metric.json';
+    let configFile = '/tmp/analytic-engine-rl-config.json';
 
-    console.log(analyticEngineRLPath);
-    spawnSync(analyticEngineRLPath, [
-      "/tmp/metric.json",
-      "/home/jandres/Codes/analytic-engine/config/analytic-engine-rl-config.json"
-    ], {
+    //this.acquireMetrics(timeBegin, timeEnd, metricFile);
+
+    fs.writeFileSync(configFile, JSON.stringify(config));
+
+    spawnSync(analyticEngineRLPath, [ metricFile, configFile ], {
       stdio:[0,1,2]  // Display to the parent's stream.
     });
 
