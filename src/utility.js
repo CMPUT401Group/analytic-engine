@@ -192,7 +192,7 @@ function generateDashboard(options) {
             height: '300px',
             panels: [
                 {
-                    title: `${row.targetName}`,
+                    title: `${row.title}`,
                     type: 'graph',
                     span: 12,
                     fill: 1,
