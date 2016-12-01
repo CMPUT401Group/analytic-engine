@@ -1,7 +1,6 @@
 /**
  * @class Pattern
  * @brief Pattern interface/abstract class that all pattern must extend.
- * @abstract
  *
  * Contains stuff that needs to implement. See those that throws an exception.
  */

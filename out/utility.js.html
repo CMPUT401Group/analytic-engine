@@ -32,56 +32,177 @@ import moment from 'moment';
 import MetricsAPIAdapter from './metrics-api-adapter';
 import RenderAPIAdapter from './render-api-adapter';
 import covariance from './patterns/covariance';
+/**
+ * @class utility
+ * @classdesc This class provides extra functionality to the statistical analysis of the system, such as normalization,
+ * outlier removal (smoothing), metric length realignment, and finding local min and max. As well functionality such as
+ * converting data from a json data file into a json file readable by grafana so that it is able to be displayed on
+ * a dashboard. As well converting a data object to a readable URL for get and send requests from graphite.
+ */
+class Utility {
+    objToURLParam(obj) {
+        var str = "";
+        for (var key in obj) {
+            if (str != "") {
+                str += "&amp;";
+            }
+            str += key + "=" + encodeURIComponent(obj[key]);
+        }
+        return str;
+    }
 
-// Gets closest time to specified time frame put in by user
-// i.e. if user enters 113, but doesn't exist in the data set
-// it finds the next closest time stamp as the start point
-// applies for both indexFromTimeBefore, and indexFromTimeAfter
+    /**
+     * Javascript does time_stamp shallow copy when assignment is done with objects.
+     * To make deep copy, use this function.
+     *
+     * @param {Object} obj The javascript to deep copy.
+     * @return {Object} Deep copied 'obj'.
+     */
+    deepCopy(obj) {
+        return _.map(obj, _.clone);
+    }
+}
+/**
+ * @function indexFromTimeBefore
+ * @brief Gets closest time to specified time frame put in by user
+ * Example i.e. if user enters 113, but doesn't exist in the data set
+ * it finds the next closest time stamp as the start point
+ * applies for both indexFromTimeBefore, and indexFromTimeAfter
+ */
 function indexFromTimeBefore(metrics){
     //parse starting metric for closest user specified
+    return metrics[0].datapoints;
 }
-
+/**
+ * @function indexFromTimeAfter
+ * @brief Gets closest time to specified time frame put in by user
+ * Example i.e. if user enters 113, but doesn't exist in the data set
+ * it finds the next closest time stamp as the start point
+ * applies for both indexFromTimeBefore, and indexFromTimeAfter
+ */
 function indexFromTimeAfter(metrics) {
     //parse end metric for closest user specified one
+    console.log(metrics[0].datapoints[0][1]);
+    return metrics[0].datapoints[0][1];
 }
+/**
+ * @function MetricSmoothing
+ * @brief Smooths out the datapoints for a more accurate normalization
+ * of the data set. Does this by the user specifiying the number of outliers
+ * to remove upon using the function. Default is top 3 outliers.
+ * The outlier removal applies to both largely deviant positive and negative values.
+ * Example: MetricSmoothing(Metrics, loop [# of outliers to be removed])
+ * input: [[1000, '20160906'], [-18000, '20160907'], [37, '20160908']....]
+ * output: [[null, '20160906'], [null, '20160907'], [37, '20160908']....]
+ */
 
-//Smooths out the datapoints for a more accurate normalization
-// of the data set
-function metricSmoothing(metrics){
-    var smoothData
-    var cleanmetrics = covariance.cleanNulls(metrics[0]);
+function MetricSmoothing(metrics, loop=3){
+    var i = 1;
+    var smoothData = R("r-modules/Smoothing.R").data(metrics[0].datapoints).callSync();
+
+    while (i &lt; loop){
+        smoothData = R("r-modules/Smoothing.R").data(smoothData).callSync();
+        i++;
+    }
+    for (var j = 0; j &lt; smoothData.length; j++) {
+        if(smoothData[j][0] == null){
+            smoothData[j][0] = null;
+        }
+        else {
+            smoothData[j][0] = Number(smoothData[j][0]);
+        }
+    }
+    //var cleanmetrics = covariance.cleanNulls(metrics[0]);
     return smoothData
 }
 
-/**Normalizes the dataset.
- * @summary https://docs.google.com/document/d/1x0A1nUz1WWtMCZb5oVzF0SVMY7a_58KQulqQVT8LaVA/edit#
- *Normalization: It’s the process of casting the data to the
- *specific range,like between 0 and 1 or between -1 and +1.
+/**
+ * @function Normalize
+ * @brief Normalizes the dataset.
+ * https://docs.google.com/document/d/1x0A1nUz1WWtMCZb5oVzF0SVMY7a_58KQulqQVT8LaVA/edit#
+ * Normalization: It’s the process of casting the data to the
+ * specific range,like between 0 and 1 or between -1 and +1.
  * Normalization is required when there is big differences
- *in the ranges of different features.  This scaling
+ * in the ranges of different features.  This scaling
  * method is useful when the data set does not contain outliers.
-*/
-function Normalize(metric, timeFrame){
-    R("r-modules/Normalize.R");
+ * Currently using this normalization formula: z(i) = (x(i)-min(x))/max(x)-min(x)
+ * In which z(i) stands for the normalized value of x at position i, x(i), and
+ * with min(x) and max(x) representing the min and max values of the given
+ * set of metrics.
+ * @return {Array}
+ */
+function Normalize(metric){
     // we want to smooth the data first before we normalize
-    // otherwise we will get skewed results
-    var metrics = metricSmoothing(metric);
-    // data will be in the ranges of -1 to 1?
+    // otherwise we will get skewed results. (Perhaps add a flag for this?
+    // Or have this be developer specified?)
+    var normalized_data = R("r-modules/Normalize.R")
+        .data(metric[0].datapoints)
+        .callSync();
+
+    // data will be in the ranges of -1 to 1
+    for (var i = 0; i &lt; normalized_data.length; i++) {
+        if(normalized_data[i][0] == null){
+            normalized_data[i][0] = null;
+        }
+        else {
+            normalized_data[i][0] = Number(normalized_data[i][0]);
+        }
+    }
+
     return normalized_data;
 }
 
-//finds the local max and minimum of a data set, more
-//accurate results if we use a normailzed data set
-function FindLocalMaxandMin(metric, interval) {
-    R("r-modules/interpolatePOI.R");
-    var timeInterval = interval;
+/**
+ * @function FindLocalMaxandMin
+ * @brief Finds the times of the local max and minimum of a data set, given a user entered interval of points separation.
+ * If there are two of the same max or min values within an interval it will return the first one found in the data set
+ * Example: input: FindLocalMaxandMin( [[97, '20160909'], [98, '20160910'], [87, '20160911'], [5, '20160912']...., interval = 4)
+ *          output: [['20160912','20160910']], ['20160913'.....]....]]
+ *          With a format of [[min, max], [min, max]...etc.
+ * @returns {Array}
+ */
+function FindLocalMaxandMin(metric, interval=4) {
+    // rather go lower in the indexing vs higher, as to avoid
+    // index out of range errors
+    var array_length = Math.floor((metric[0].datapoints.length)/interval);
+    var maxmin_tuple_list = [];
+    var datapoints_list = [];
+    var i = 0;
+    var j = 0;
+    // I know this is an inefficient means to do this, but I was
+    // experiencing erroneous behaviour from the r-script output
+    // therefore I split the interpolationPOI into two R files.
+    // as well resorted to javascript loops as well.
+    while (i &lt; array_length) {
+        while (j &lt; interval){
+            datapoints_list.push(metric[0].datapoints.shift());
+            j++;
+        }
+        // In the case of duplicate points for local max and min, it always returns
+        // the local max or min of the earliest one:
+        //
+        // i.e. if these two were tied for the max [98, '20160909'], [98, '20160910']
+        // it would return with '20160909' as its time (Seen in test case)
+        // (Could also alter R code to return more than just a single max and min as well)
 
 
-    //returns max and minimum points for a given
+        maxmin_tuple_list.push([R("r-modules/min.R").data(datapoints_list).callSync(),
+            R("r-modules/max.R").data(datapoints_list).callSync()]);
+        datapoints_list = [];
+        j = 0;
+        i ++;
+
+    }
+    // returns the times of the min and max points for a given
     // periods/intervals over a given time frame
-    // Default is 10min periods.
-    return maxmin_tuple_list //lists of lists for now.
+    // Default is 4 data point intervals
+    return maxmin_tuple_list ;//lists of lists for now.
 }
+/**
+ * @function generateDashboard
+ * @brief This function takes in a json file, breaks it down into a format readable by the grafana dashboard importer
+ * and uploads this now converted file to be viewed.
+ */
 
 function generateDashboard(options) {
     let dashboard = {
@@ -122,33 +243,9 @@ function generateDashboard(options) {
     return dashboard;
 }
 
-class Utility {
-    objToURLParam(obj) {
-        var str = "";
-        for (var key in obj) {
-            if (str != "") {
-                str += "&amp;";
-            }
-            str += key + "=" + encodeURIComponent(obj[key]);
-        }
-        return str;
-    }
-
-    /**
-     * Javascript does time_stamp shallow copy when assignment is done with objects.
-     * To make deep copy, use this function.
-     *
-     * @param {Object} obj The javascript to deep copy.
-     * @return {Object} Deep copied 'obj'.
-     */
-    deepCopy(obj) {
-        return _.map(obj, _.clone);
-    }
-}
-
 let utilityInstance = new Utility();
 export default utilityInstance;
-export {Normalize, FindLocalMaxandMin, generateDashboard};
+export {Normalize, FindLocalMaxandMin, generateDashboard, MetricSmoothing, indexFromTimeAfter, indexFromTimeBefore};
 </code></pre>
         </article>
     </section>
@@ -159,13 +256,13 @@ export {Normalize, FindLocalMaxandMin, generateDashboard};
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Covariance.html">Covariance</a></li><li><a href="GraphiteAdapter.html">GraphiteAdapter</a></li><li><a href="MetricsAPIAdapter.html">MetricsAPIAdapter</a></li><li><a href="module.exports.html">exports</a></li><li><a href="Pattern.html">Pattern</a></li><li><a href="POI.html">POI</a></li><li><a href="RenderAPIAdapter.html">RenderAPIAdapter</a></li><li><a href="Threshold.html">Threshold</a></li></ul><h3>Global</h3><ul><li><a href="global.html#close">close</a></li><li><a href="global.html#correlation">correlation</a></li><li><a href="global.html#deserialize">deserialize</a></li><li><a href="global.html#deserializeTHRESHOLDRULE">deserializeTHRESHOLDRULE</a></li><li><a href="global.html#error">error</a></li><li><a href="global.html#expand">expand</a></li><li><a href="global.html#find">find</a></li><li><a href="global.html#findAll">findAll</a></li><li><a href="global.html#findAllThreshold">findAllThreshold</a></li><li><a href="global.html#findAllThresholdAsync">findAllThresholdAsync</a></li><li><a href="global.html#getPattern">getPattern</a></li><li><a href="global.html#insert">insert</a></li><li><a href="global.html#metric1">metric1</a></li><li><a href="global.html#metric2">metric2</a></li><li><a href="global.html#Normalize">Normalize</a></li><li><a href="global.html#open">open</a></li><li><a href="global.html#p1">p1</a></li><li><a href="global.html#removeAll">removeAll</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderAsync">renderAsync</a></li><li><a href="global.html#renderMetrics">renderMetrics</a></li><li><a href="global.html#serialize">serialize</a></li><li><a href="global.html#serializeTHRESHOLDRULE">serializeTHRESHOLDRULE</a></li><li><a href="global.html#train">train</a></li></ul>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Covariance.html">Covariance</a></li><li><a href="GraphiteAdapter.html">GraphiteAdapter</a></li><li><a href="MetricsAPIAdapter.html">MetricsAPIAdapter</a></li><li><a href="module.exports.html">exports</a></li><li><a href="Pattern.html">Pattern</a></li><li><a href="POI.html">POI</a></li><li><a href="RenderAPIAdapter.html">RenderAPIAdapter</a></li><li><a href="Threshold.html">Threshold</a></li><li><a href="utility.html">utility</a></li></ul><h3>Global</h3><ul><li><a href="global.html#close">close</a></li><li><a href="global.html#correlation">correlation</a></li><li><a href="global.html#deserialize">deserialize</a></li><li><a href="global.html#deserializeTHRESHOLDRULE">deserializeTHRESHOLDRULE</a></li><li><a href="global.html#error">error</a></li><li><a href="global.html#expand">expand</a></li><li><a href="global.html#find">find</a></li><li><a href="global.html#findAll">findAll</a></li><li><a href="global.html#findAllThreshold">findAllThreshold</a></li><li><a href="global.html#findAllThresholdAsync">findAllThresholdAsync</a></li><li><a href="global.html#FindLocalMaxandMin">FindLocalMaxandMin</a></li><li><a href="global.html#generateDashboard">generateDashboard</a></li><li><a href="global.html#getPattern">getPattern</a></li><li><a href="global.html#indexFromTimeAfter">indexFromTimeAfter</a></li><li><a href="global.html#indexFromTimeBefore">indexFromTimeBefore</a></li><li><a href="global.html#insert">insert</a></li><li><a href="global.html#metric1">metric1</a></li><li><a href="global.html#metric2">metric2</a></li><li><a href="global.html#MetricSmoothing">MetricSmoothing</a></li><li><a href="global.html#Normalize">Normalize</a></li><li><a href="global.html#open">open</a></li><li><a href="global.html#p1">p1</a></li><li><a href="global.html#removeAll">removeAll</a></li><li><a href="global.html#render">render</a></li><li><a href="global.html#renderAsync">renderAsync</a></li><li><a href="global.html#renderMetrics">renderMetrics</a></li><li><a href="global.html#serialize">serialize</a></li><li><a href="global.html#serializeTHRESHOLDRULE">serializeTHRESHOLDRULE</a></li><li><a href="global.html#train">train</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a> on Fri Nov 25 2016 16:59:32 GMT-0700 (MST)
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.2</a> on Thu Dec 01 2016 13:20:14 GMT-0700 (MST)
 </footer>
 
 <script> prettyPrint(); </script>
