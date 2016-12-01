@@ -1,5 +1,5 @@
 import utility from '../../src/utility';
-import {Normalize, FindLocalMaxandMin, MetricSmoothing} from '../../src/utility';
+import {Normalize, FindLocalMaxandMin, generateDashboard, MetricSmoothing, indexFromTimeAfter, indexFromTimeBefore} from '../../src/utility';
 
 /**
  * @description Test suite for utility.js:
@@ -9,11 +9,26 @@ import {Normalize, FindLocalMaxandMin, MetricSmoothing} from '../../src/utility'
  * moment JS_lib;
  * @see http://momentjs.com/docs/
  */
+
+var from_time_after = [
+    {
+        target: "Dummy1",
+        datapoints: [[33, '20160901'], [61, '20160902'], [25, '20160903'], [96, '20160904'],
+            [46, '20160905'], [7, '20160906'], [22, '20160907'], [76, '20160908'],
+            [69, '20160909'], [27, '20160910'], [74, '20160911'], [73, '20160912'],
+            [97, '20160913'], [16, '20160914'], [43, '20160915'], [74, '20160916'],
+            [34, '20160917'], [87, '20160918'], [54, '20160919'], [99, '20160920'],
+            [14, '20160921'], [97, '20160922'], [36, '20160923'], [88, '20160924'],
+            [58, '20160925'], [59, '20160926'], [43, '20160927'], [65, '20160928'],
+            [100, '20160929'], [83, '20160930'], [11, '20160931']]
+    }
+
+];
 var default_metric_outliers = [
     {
         target: 'dummy.metric.1',
         datapoints: [[72, '20160901'], [34, '20160902'], [39, '20160903'], [63, '20160904'], [17, '20160905'],
-            [1000, '20160906'], [18000, '20160907'], [37, '20160908'], [98, '20160909'], [98, '20160910'], [76, '20160911'],
+            [1000, '20160906'], [-18000, '20160907'], [37, '20160908'], [98, '20160909'], [98, '20160910'], [76, '20160911'],
             [87, '20160912'], [5, '20160913'], [12, '20160914'], [54, '20160915'], [89, '20160916'], [18, '20160917'],
             [55, '20160918'], [54, '20160919'], [52, '20160920'], [67, '20160921'], [5, '20160922'], [41, '20160923'],
             [13, '20160924'], [31, '20160925'], [6100, '20160926'], [87, '20160927'], [4, '20160928']]
@@ -81,7 +96,7 @@ describe("AnalyticEngine - Utility", function() {
 });
 
 describe("Test for normalization", function () {
-    let normal = Normalize(default_metric, 1);
+    let normal = Normalize(default_metric);
     it("Normalize the data set so that it is in a range of -1 to 1", function () {
 
         expect(normal).toEqual(metric_expected[0].datapoints);
@@ -107,3 +122,13 @@ describe("Test for smoothing out the data set by removing any outliers", functio
     });
 
 });
+/*
+describe("Test for testing out the timeafterfunction", function () {
+    let timeafter = indexFromTimeAfter(from_time_after);
+    it("Max and Min found from specified metrics", function () {
+
+        expect(timeafter).toEqual(expected_metric_outliers[0].datapoints);
+    });
+
+});
+    */

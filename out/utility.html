@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>JSDoc: Source: rl-adapater.js</title>
+    <title>JSDoc: Class: utility</title>
 
     <script src="scripts/prettify/prettify.js"> </script>
     <script src="scripts/prettify/lang-css.js"> </script>
@@ -17,84 +17,132 @@
 
 <div id="main">
 
-    <h1 class="page-title">Source: rl-adapater.js</h1>
+    <h1 class="page-title">Class: utility</h1>
 
     
 
 
 
+
+<section>
+
+<header>
     
-    <section>
-        <article>
-            <pre class="prettyprint source linenums"><code>import fs from 'fs';
-import _ from 'underscore';
-import config from 'config';
-import moment from 'moment';
-import child_process from 'child_process';
+        <h2>utility</h2>
+        
+            <div class="class-description">This class provides extra functionality to the statistical analysis of the system, such as normalization,
+outlier removal (smoothing), metric length realignment, and finding local min and max. As well functionality such as
+converting data from a json data file into a json file readable by grafana so that it is able to be displayed on
+a dashboard. As well converting a data object to a readable URL for get and send requests from graphite.</div>
+        
+    
+</header>
 
-import GraphiteAdapter from './graphite-adapter';
+<article>
+    <div class="container-overview">
+    
+        
 
-let spawnSync = child_process.spawnSync;
-let graphiteURL = config.get('graphiteURL');
-let mongodPort = config.get('mongodPort');
-let analyticEngineRLPath = config.get('analytic-engine-rl-cli-path');
+    
+    <h2>Constructor</h2>
+    
 
-export default class RLAdapter {
-  acquireMetrics(timeBegin, timeEnd, destFile) {
-    let graphiteAdapter = new GraphiteAdapter(graphiteURL);
+    <h4 class="name" id="utility"><span class="type-signature"></span>new utility<span class="signature">()</span><span class="type-signature"></span></h4>
 
-    var timeBeginUTC = moment(timeBegin).utc().format('HH:mm_YYYYMMDD');
-    var timeEndUTC = moment(timeEnd).utc().format('HH:mm_YYYYMMDD');
+    
 
-    let metricRes = graphiteAdapter.metrics.findAll();
-    metricRes = metricRes.slice(7000);
 
-    //let allMetrics = [];
-    fs.writeFileSync(destFile, '[');
-    metricRes.forEach((metric, i) => {
-      let renderRes = graphiteAdapter.render.render({
-        target: metric,
-        format: 'json',
-        from: timeBeginUTC,
-        until: timeEndUTC,
-      });
 
-      if (i != metricRes.length - 1) {
-        fs.appendFileSync(destFile, JSON.stringify(renderRes) + ',');
-      } else {
-        fs.appendFileSync(destFile, JSON.stringify(renderRes));
-      }
 
-      console.log(`${i} in ${metricRes.length}`);
-    });
-    fs.appendFileSync(destFile, ']');
 
-    //return allMetrics;
-  }
 
-  /**
-   * @param {Date} timeBegin
-   * @param {Date} timeEnd
-   */
-  train(timeBegin, timeEnd) {
-    this.acquireMetrics(timeBegin, timeEnd, '/tmp/metric.json');
 
-    console.log(analyticEngineRLPath);
-    spawnSync(analyticEngineRLPath, [
-      "/tmp/metric.json",
-      "/home/jandres/Codes/analytic-engine/config/analytic-engine-rl-config.json"
-    ], {
-      stdio:[0,1,2]  // Display to the parent's stream.
-    });
 
-    return JSON.parse(fs.readFileSync('result.json', {
-      encoding: 'utf8'
-    }));
-  }
-}
-</code></pre>
-        </article>
-    </section>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utility.js.html">utility.js</a>, <a href="utility.js.html#line7">line 7</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    </div>
+
+    
+
+    
+
+    
+
+     
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
 
 
 

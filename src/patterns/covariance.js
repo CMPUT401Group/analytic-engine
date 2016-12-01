@@ -328,5 +328,4 @@ class Covariance extends Pattern {
 
 
 }
-
 export {Covariance};
