@@ -46,6 +46,17 @@ node ./dist/cli.js entailment_search \
 --iteration-count 10000 \
 --out /tmp/temp-result.json --dashboard-out /tmp/dashboard.json
 
+## CRON TASK
+using the following api call, setting the date and metric parameters to return a list of deviant datapoints is possible. 
+
+http://162.246.157.107:8888/call?mdate1=1474110000&mdate2=1474111800&m1=invidi.webapp.localhost_localdomain.request.total_response_time.mean&m2=invidi.webapp.localhost_localdomain.database.request.findEtl.error_gauge&func=2
+
+There is also a ui at: 
+http://runwithittest.azurewebsites.net/
+
+which uses this api to compare metrics and find deviant points. 
+
+
 ## TODO:
 * we need more robust interpolation of data points (currently, I think we might miss out on local minima and maxima in a dataset which could skew the results of covarance and correlation analysis)
 * we need to make sure that when comapring sets of datapoints we comapre points which have the same time spacing. If there are differing intervals or gaps in a metric, we need to represent that in the number of datapoints for that metric (currently we assume that we are always comapring the same span of time and we simply interpolate more points in one of the metrics to match the other. We always create interpolated sets with even spacing in the timeframe and we need to ensure that is the case for the other metric as well. Possibly this means that we should interpolate both metrics, but I think we need to address whether interpolating is causing the data to lose possible points of interest which line up in time to points in the other data set anyway)

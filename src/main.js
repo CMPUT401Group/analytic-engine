@@ -138,23 +138,13 @@ function main() {
           res.json(jsonstring);
       }
 
-      else res.send("invalid request: function should be correlation or covariance");
+      else res.send("invalid request: function should be correlation, covariance or metricDeviation");
 
            
         });
 
         app.listen(nodejsPort, function () {
           console.log('Example app listening on port: ',nodejsPort);
-  });
-
-app.get('/cron/metricDeviation/:mdate1/:mdate2/:m1/:m2/:func',function(req, res)  
-  {
-      /*var mdate1 = req.parms.mdate1;
-      var mdate2 = req.parms.mdate2;
-      var m1 = req.parms.m1;
-      var m2 = req.parms.m2;
-      var func = req.params.func; */
-      res.json(req);
   });
 
         
