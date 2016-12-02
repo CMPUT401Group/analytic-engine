@@ -6,6 +6,7 @@ import {generateDashboard} from './utility';
 import fs from 'fs';
 import 'moment';
 import moment from 'moment-timezone';
+import getUsage from 'command-line-usage';
 
 moment.tz.setDefault("utc");
 
@@ -39,8 +40,76 @@ const options = commandLineArgs(optionDefinitions)
 
 console.log(options);
 
+const cliTimeArgsFormat = 'hh:mm_YYYYMMDD';
+
 function helpMsg(){
-	console.log("this is the help message");
+	let cliExecutable = 'node ./dist/cli.js';
+	const sections = [
+		{
+			header: 'Analytic Engine',
+			content: 'Understanding the world with our analysis.'
+		},
+		{
+			header: 'Synopsis',
+			content: `$ ${cliExecutable} <command> <option>`
+		},
+		{
+			header: 'Command',
+			content: [
+				{ name: 'entailment_search', summary: 'Given a goal-metric in some time frame searches a list of entailing metrics.' }
+			]
+		},
+		{
+			header: 'entailment_search',
+			optionList: [
+				{
+					name: 'time-begin',
+					description: 'The begin time of the search space in ${cliTimeArgsFormat}'
+				},
+				{
+					name: 'time-end',
+					description: `The begin time of the search space in ${cliTimeArgsFormat}`
+				},
+				{
+					name: 'goal-metric',
+					description: 'The name of the metric to search entailments for.'
+				},
+				{
+					name: 'goal-metric-time-begin',
+					description: `The begin time of the goal metric in ${cliTimeArgsFormat}. Must be greater than or equal {time-begin}.`
+				},
+				{
+					name: 'goal-metric-time-end',
+					description: `The end time of the goal metric in ${cliTimeArgsFormat}. Must be less than or equal {time-begin}.`
+				},
+				{
+					name: 'iteration-count',
+					description: `The higher, the more accurate is the result.`
+				},
+				{
+					name: 'out',
+					description: 'Output file of the reinforcement learning data.'
+				},
+				{
+					name: 'dashboard-out',
+					description: 'Output file of the grafana dashboard.'
+				}
+			]
+		},
+		{
+			header: 'Sample: entailment_search',
+			content: [
+				`${cliExecutable} entailment_search \
+--goal-metric invidi.webapp.localhost_localdomain.request.total_response_time.mean \
+--time-begin 00:00_20160917 --time-end 23:00_20160917 \
+--goal-metric-time-begin 05:00_20160917 --goal-metric-time-end 12:00_20160917 \
+--iteration-count 10000 \
+--out /tmp/temp-result.json --dashboard-out /tmp/dashboard.json`
+			]
+		}
+	];
+	const usage = getUsage(sections);
+	console.log(usage);
 }
 
 if (options.help == true){
@@ -231,7 +300,7 @@ if (options.hasOwnProperty("function")){
 					};
 				});
 				fs.writeFileSync(
-					'dashboard.json',
+					options["dashboard-out"],
 					JSON.stringify(generateDashboard(dashboardOptions))
 				);
 				break;
