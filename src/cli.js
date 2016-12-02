@@ -36,9 +36,7 @@ const optionDefinitions = [
   { name: 'dashboard-out', type: String }
 ];
 
-const options = commandLineArgs(optionDefinitions)
-
-console.log(options);
+const options = commandLineArgs(optionDefinitions);
 
 const cliTimeArgsFormat = 'hh:mm_YYYYMMDD';
 
@@ -228,6 +226,8 @@ if (options.hasOwnProperty("function")){
 
 				console.log(top30.slice(0, 30));
 
+				//write a dashboard to dashboard.json in the current directory
+				//TODO: make the argument for outputting this to a set file
 				let timeBeginUTC = moment(options.m1_start, 'hh:mm_YYYYMMDD').format('YYYY-MM-DD HH:mm:ss');
 				let timeEndUTC = moment(options.m1_end, 'hh:mm_YYYYMMDD').format('YYYY-MM-DD HH:mm:ss');
 
@@ -244,7 +244,7 @@ if (options.hasOwnProperty("function")){
 					};
 				});
 				fs.writeFileSync(
-					'dashboard.json',
+					options["dashboard-out"],
 					JSON.stringify(generateDashboard(dashboardOptions))
 				);
 
