@@ -109,7 +109,7 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
     
 	it ('negative correlation', function() {
         let cov = new Covariance(metric1);
-        expect(cov.correlation(metric5)).toEqual(-1); 
+        expect(cov.correlation(metric5)).toEqual(-1);
     });
     it ('flat line correlation', function() {
         let cov = new Covariance(metric1);
@@ -117,7 +117,7 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
     }); 
 	it ('Covariance', function() {
         let cov = new Covariance(metric1);
-        expect(cov.covariance(metric1)).toEqual(2.5); //I have not checked this by hand. 
+        expect(cov.covariance(metric1)).toEqual(2.5); //I have not checked this by hand.
     });
     it ('negative covariance', function() {
         let cov = new Covariance(metric1);
@@ -130,6 +130,14 @@ describe("AnalyticEngine - Patterns - Covariance", function() {
     it ('deviation metric', function() {
         let cov = new Covariance(metric1);
         expect(cov.metricDeviation(metric1,1)).toEqual([1,5]); 
+    });
+    it('Normalization test covariance', function() {
+        let cov = new Covariance(metric1);
+        expect(cov.covariance(metric1,1)).toEqual(cov.covariance(metric1,1));
+    });
+    it ('Normalization test correlation', function() {
+        let cov = new Covariance(metric1);
+        expect(cov.correlation(metric5,1)).toEqual(-1);
     });
 
 //the following tests are using the metric and render APIs (they are not true unit tests!) 

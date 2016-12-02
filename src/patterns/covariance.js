@@ -6,7 +6,7 @@ import config from 'config';
 import MetricsAPIAdapter from './../metrics-api-adapter';
 import RenderAPIAdapter from './../render-api-adapter';
 import async from 'async';
-import {EpochToDate} from './../utility';
+import {Normalize, FindLocalMaxandMin, MetricSmoothing,} from './../utility';
 import moment from 'moment';
 
 var interpL = require( 'line-interpolate-points' )
@@ -83,9 +83,14 @@ class Covariance extends Pattern {
     * cleans the 'null' values in a metric, interpolates points in the metrics argument to be the same number as 
     * the metric used to initialize the class, then calcualtes the covariance between these 2 metrics and returns it
     */
-    covariance(metrics) {
+    covariance(metrics, NormFlag=0) {
 
     	this.cleanNulls(metrics[0].datapoints);
+        if (NormFlag == 1){
+            metrics[0].datapoints = Normalize(metrics);
+
+
+        }
 
         metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
 
@@ -103,9 +108,13 @@ class Covariance extends Pattern {
     * 1 or -1 indicate perfect linear or negatively linear correlation respectively. less correlated data will fall into the
     * the range of 1>x>-1
     */
-    correlation(metrics){
+    correlation(metrics, NormFlag=0){
         this.cleanNulls(metrics[0].datapoints);
+        if (NormFlag == 1){
+            metrics[0].datapoints = Normalize(metrics);
 
+
+        }
         metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
 
         var out = R("r-modules/linear-correlation.R")
@@ -142,13 +151,9 @@ class Covariance extends Pattern {
     */
     findLocalMinMax(metrics, timeframe){
         this.cleanNulls(metrics[0].datapoints);
+        // Returns a list of lists full of datpoint time stamps [[min, max], [...]]
+        return FindLocalMaxandMin(metrics, timeframe);
 
-        R("r-modules/interpolatePOI.R")
-        .data(metrics[0].datapoints)
-        .call(function(err, out) {
-            if (err){ throw err; } // this is sometimes coming back as a missing library. 
-            return out;
-            });
     }
 
 
@@ -281,7 +286,7 @@ class Covariance extends Pattern {
     */
     covInterpP(datapoints){
         var set1 = this.metricTarget[0].datapoints;
-        var set2 = datapoints
+        var set2 = datapoints;
 
         if (set1.length == 0 || set2.length ==0){
 
