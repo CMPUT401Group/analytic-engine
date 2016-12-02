@@ -256,12 +256,12 @@ if (options.hasOwnProperty("function")){
 	        break;
 
 	    case 'entailment_search':
-				let timeBegin = + moment(options["time-begin"], 'hh:mm_YYYYMMDD').utc().toDate();
-				let timeEnd = + moment(options["time-end"], 'hh:mm_YYYYMMDD').utc().toDate();
-				let goalMetricTimeBegin = (+ moment(options["goal-metric-time-begin"], 'hh:mm_YYYYMMDD').utc().toDate())/1000;
-				let goalMetricTimeEnd = (+ moment(options["goal-metric-time-end"], 'hh:mm_YYYYMMDD').utc().toDate())/1000;
-				let timeBeginUTC = moment(options["time-begin"], 'hh:mm_YYYYMMDD').utc().format('YYYY-MM-DD HH:mm:ss');
-				let timeEndUTC = moment(options["time-end"], 'hh:mm_YYYYMMDD').utc().format('YYYY-MM-DD HH:mm:ss');
+				let timeBegin = + moment(options["time-begin"], 'hh:mm_YYYYMMDD').toDate();
+				let timeEnd = + moment(options["time-end"], 'hh:mm_YYYYMMDD').toDate();
+				let goalMetricTimeBegin = (+ moment(options["goal-metric-time-begin"], 'hh:mm_YYYYMMDD').toDate())/1000;
+				let goalMetricTimeEnd = (+ moment(options["goal-metric-time-end"], 'hh:mm_YYYYMMDD').toDate())/1000;
+				let timeBeginUTC = moment(options["time-begin"], 'hh:mm_YYYYMMDD').format('YYYY-MM-DD HH:mm:ss');
+				let timeEndUTC = moment(options["time-end"], 'hh:mm_YYYYMMDD').format('YYYY-MM-DD HH:mm:ss');
 
 	    	let config = {
 					"timeBegin": timeBegin,
