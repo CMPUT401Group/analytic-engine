@@ -153,6 +153,15 @@ function helpMsg(){
 					description: 'The number of standard deviations a value must be from the median to consider a point deviant. default: 2'
 				}
 			]
+		},
+		{
+			header: 'Sample: covariance',
+			content: [
+				`${cliExecutable} covariance --metric1 IN.stb-sim.dean.RequestTiming.count\
+				 --metric2 "IN.stb-sim.dean.RequestTiming.count" --m1_start 17:00_20160921\
+				  --m1_end 18:00_20160921 -n`
+
+			]
 		}
 	];
 	const usage = getUsage(sections);
