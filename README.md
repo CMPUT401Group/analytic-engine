@@ -44,7 +44,7 @@ node ./dist/cli.js entailment_search \
 --time-begin 00:00_20160917 --time-end 23:00_20160917 \
 --goal-metric-time-begin 05:00_20160917 --goal-metric-time-end 12:00_20160917 \
 --iteration-count 10000 \
---out /tmp/temp-result.json --dashboard-out /tmp/temp-result2.json
+--out /tmp/temp-result.json --dashboard-out /tmp/dashboard.json
 
 ## TODO:
 * we need more robust interpolation of data points (currently, I think we might miss out on local minima and maxima in a dataset which could skew the results of covarance and correlation analysis)

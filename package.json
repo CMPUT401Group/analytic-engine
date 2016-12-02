@@ -21,6 +21,7 @@
     "async": "^2.1.2",
     "body-parser": "^1.15.2",
     "command-line-args": "^3.0.3",
+    "command-line-usage": "^3.0.7",
     "config": "^1.21.0",
     "deep-equal": "^1.0.1",
     "es6-enum": "^1.1.0",
