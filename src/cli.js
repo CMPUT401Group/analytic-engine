@@ -13,7 +13,7 @@ const optionDefinitions = [
   { name: 'm1_end',  type: String },
   { name: 'm2_start',  type: String },
   { name: 'm2_end', type: String },
-  { name: 'std_dev', alias: 'd', type: String },
+  { name: 'std_dev', alias: 'd', type: Number },
   { name: 'help', alias: 'h', type: Boolean }
 ]
 
@@ -94,17 +94,17 @@ if (options.hasOwnProperty("function")){
 	        from: options.m1_start,
 	        until: options.m1_end,
 	      });
-	      var renderRes2 = render.render({
-	        target: options.metric2,
-	        format: 'json',
-	        from: options.m2_start,
-	        until: options.m2_end,
-	      });
 
 	      //apply the requested function and return the result
 	      var cov = new Covariance(renderRes1);
-	      
-	      var result = cov.metricDeviation(renderRes2);
+
+	      var result 
+	      if (!options.hasOwnProperty("std_dev")){
+	      	result = cov.metricDeviation(renderRes1);
+	      }
+	      else {
+	      	result = cov.metricDeviation(renderRes1, options.std_dev); 
+	      }
 	      console.log('Number of deviant points: ', result.length);
 
 	        break;
@@ -123,6 +123,8 @@ if (options.hasOwnProperty("function")){
 }
 
 /* node dist/cli.js correlation --metric1 IN.stb-sim.dean.RequestTiming.count --metric2 "IN.stb-sim.dean.RequestTiming.count" \
---m1_start 17:00_20160921 --m1_end 18:00_20160921 --m2_start
+--m1_start 17:00_20160921 --m1_end 18:00_20160921 
+
+
 
 */
