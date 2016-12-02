@@ -24,6 +24,7 @@ const optionDefinitions = [
   { name: 'm2_end', type: String },
   { name: 'std_dev', alias: 'd', type: Number },
   { name: 'help', alias: 'h', type: Boolean },
+  { name: 'normalisation', alias: 'n', type: Boolean },
 
   // RL args.
   { name: 'goal-metric', type: String },
@@ -137,6 +138,10 @@ function helpMsg(){
 				{
 					name: 'm2_end',
 					description: 'end time for metric2: format hh:mm_YYYYMMDD'
+				},
+				{
+					name: 'normalisation',
+					description: 'flag to normalise data before comparison. Alias: n'
 				}
 			]
 		},
@@ -187,7 +192,14 @@ if (options.hasOwnProperty("function")){
 
 	      //apply the requested function and return the result
 	      var cov = new Covariance(renderRes1);
-	      var result = cov.correlation(renderRes2);
+	      var result;
+	      if (options.hasOwnProperty("normalisation")) {
+	      	result = cov.correlation(renderRes2, 1);
+	      }
+	      else {
+	      	result = cov.correlation(renderRes2);
+	      }
+	      result = cov.correlation(renderRes2);
 	      console.log('Linear Correlation: ', result);
 
 	        break;
@@ -209,7 +221,13 @@ if (options.hasOwnProperty("function")){
 
 	      //apply the requested function and return the result
 	      var cov = new Covariance(renderRes1);
-	      var result = cov.covariance(renderRes2);
+	      var result;
+	      if (options.hasOwnProperty("normalisation")) {
+	      	result = cov.covariance(renderRes2, 1);
+	      }
+	      else {
+	      	result = cov.covariance(renderRes2);
+	      }
 	      console.log('Covariance: ', result);
 
 	        break;
