@@ -172,7 +172,7 @@ if (options.hasOwnProperty("function")){
 				let goalMetricTimeEnd = (+ moment(options["goal-metric-time-end"], 'hh:mm_YYYYMMDD').utc().toDate())/1000;
 				let timeBeginUTC = moment(options["time-begin"], 'hh:mm_YYYYMMDD').utc().format('YYYY-MM-DD HH:mm:ss');
 				let timeEndUTC = moment(options["time-end"], 'hh:mm_YYYYMMDD').utc().format('YYYY-MM-DD HH:mm:ss');
-				console.log(timeBegin, timeEnd, goalMetricTimeBegin, goalMetricTimeEnd);
+
 	    	let config = {
 					"timeBegin": timeBegin,
 					"timeEnd": timeEnd,

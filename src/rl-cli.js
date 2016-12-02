@@ -23,7 +23,6 @@ function main() {
     },
     "resultFile": "/tmp/result.json"
   };
-  console.log(config);
 
   let result = (new RLAdapter).train(config);
 

@@ -29,6 +29,10 @@ export default class RLAdapter {
 
     fs.writeFileSync(configFile, JSON.stringify(config));
 
+    let statSyncResult = fs.statSync(analyticEngineRLPath);
+    if (!statSyncResult.isFile()) {
+      console.error("Error: config's analytic-engine-rl-cli-path should be set to the path of analytic-engine-rl executable.");
+    }
     spawnSync(analyticEngineRLPath, [ metricFile, configFile ], {
       stdio:[0,1,2]  // Display to the parent's stream.
     });
