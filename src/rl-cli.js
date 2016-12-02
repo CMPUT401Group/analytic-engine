@@ -8,8 +8,8 @@ import {generateDashboard} from './utility';
 // This will be the main executable.
 function main() {
   let config = {
-    "timeBegin": new Date(Date.UTC(2016, 8, 15, 0, 0, 0)),
-    "timeEnd": new Date(Date.UTC(2016, 8, 21, 23, 0, 0)),
+    "timeBegin": new Date(Date.UTC(2016, 8, 17, 0, 0, 0)),
+    "timeEnd": new Date(Date.UTC(2016, 8, 17, 23, 0, 0)),
     "goalPattern": {
       "metric": "invidi.webapp.localhost_localdomain.request.total_response_time.mean",
       "timeBegin": 1474106851,
@@ -23,6 +23,7 @@ function main() {
     },
     "resultFile": "/tmp/result.json"
   };
+  console.log(config);
 
   let result = (new RLAdapter).train(config);
 

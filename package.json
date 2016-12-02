@@ -29,6 +29,7 @@
     "line-interpolate-points": "^1.0.5",
     "loglevel": "^1.4.1",
     "moment": "^2.15.2",
+    "moment-timezone": "^0.5.10",
     "mongo-sync": "^2.0.1",
     "mongodb": "^2.2.10",
     "r-script": "0.0.3",

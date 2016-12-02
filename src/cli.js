@@ -1,6 +1,14 @@
 import config from 'config';
 import RenderAPIAdapter from './render-api-adapter';
 import {Covariance} from './patterns';
+import RLAdapter from './rl-adapater';
+import {generateDashboard} from './utility';
+import fs from 'fs';
+import 'moment';
+import moment from 'moment-timezone';
+
+moment.tz.setDefault("utc");
+
 const commandLineArgs = require('command-line-args')
 
 let graphiteURL = config.get('graphiteURL');
@@ -14,8 +22,18 @@ const optionDefinitions = [
   { name: 'm2_start',  type: String },
   { name: 'm2_end', type: String },
   { name: 'std_dev', alias: 'd', type: Number },
-  { name: 'help', alias: 'h', type: Boolean }
-]
+  { name: 'help', alias: 'h', type: Boolean },
+
+  // RL args.
+  { name: 'goal-metric', type: String },
+  { name: 'goal-metric-time-begin', type: String },
+  { name: 'goal-metric-time-end', type: String },
+  { name: 'time-begin', type: String },
+  { name: 'time-end', type: String },
+  { name: 'iteration-count', type: Number },
+  { name: 'out', type: String },
+  { name: 'dashboard-out', type: String }
+];
 
 const options = commandLineArgs(optionDefinitions)
 
@@ -99,12 +117,12 @@ if (options.hasOwnProperty("function")){
 	      //apply the requested function and return the result
 	      var cov = new Covariance(renderRes1);
 
-	      var result 
+	      var result
 	      if (!options.hasOwnProperty("std_dev")){
 	      	result = cov.metricDeviation(renderRes1);
 	      }
 	      else {
-	      	result = cov.metricDeviation(renderRes1, options.std_dev); 
+	      	result = cov.metricDeviation(renderRes1, options.std_dev);
 	      }
 	      console.log('Number of deviant points: ', result.length);
 
@@ -123,17 +141,17 @@ if (options.hasOwnProperty("function")){
 	      //apply the requested function and return the result
 	      var cov = new Covariance(renderRes1);
 
-		  
+
 	      	function done(){
 	    		var dict = cov.getMetricDict();
 
-				//I am changing the dictionary to an array. I had originally used a javascript object (dictionary) 
+				//I am changing the dictionary to an array. I had originally used a javascript object (dictionary)
 				//because I wanted multiple threads to share it. In retrospect, JS is not designed for that task
 				var top30 = Object.keys(dict).map(function(key) {
 	    			return [key, dict[key]];
 				});
 
-				//the strucure is 
+				//the strucure is
 				top30.sort(function(first, second) {
 	    			return second[1][0] - first[1][0];
 				});
@@ -148,8 +166,54 @@ if (options.hasOwnProperty("function")){
 	        break;
 
 	    case 'entailment_search':
-	        //do something
-	        break;
+				let timeBegin = + moment(options["time-begin"], 'hh:mm_YYYYMMDD').utc().toDate();
+				let timeEnd = + moment(options["time-end"], 'hh:mm_YYYYMMDD').utc().toDate();
+				let goalMetricTimeBegin = (+ moment(options["goal-metric-time-begin"], 'hh:mm_YYYYMMDD').utc().toDate())/1000;
+				let goalMetricTimeEnd = (+ moment(options["goal-metric-time-end"], 'hh:mm_YYYYMMDD').utc().toDate())/1000;
+				let timeBeginUTC = moment(options["time-begin"], 'hh:mm_YYYYMMDD').utc().format('YYYY-MM-DD HH:mm:ss');
+				let timeEndUTC = moment(options["time-end"], 'hh:mm_YYYYMMDD').utc().format('YYYY-MM-DD HH:mm:ss');
+				console.log(timeBegin, timeEnd, goalMetricTimeBegin, goalMetricTimeEnd);
+	    	let config = {
+					"timeBegin": timeBegin,
+					"timeEnd": timeEnd,
+					"goalPattern": {
+						"metric": options["goal-metric"],
+						"timeBegin": goalMetricTimeBegin,
+						"timeEnd": goalMetricTimeEnd
+					},
+					"iterationCount": options["iteration-count"],
+					"initialReward": -1000.0,
+					"reinforcementLearning": {
+						"stepSize": 0.1,
+						"discountRate": 0.9
+					},
+					"resultFile": options["out"],
+				};
+				let result = (new RLAdapter).train(config);
+				result = result.filter(r => r.reward != null);
+				result = result.sort((a, b) => {
+					return b.reward - a.reward;
+				});
+
+				result = result.slice(0, 40);
+
+				let dashboardOptions = {
+					title: 'Reinforcement Learning Model for response time',
+					from: timeBeginUTC,
+					to: timeEndUTC,
+					rows: []
+				};
+				dashboardOptions.rows = result.map(r => {
+					return {
+						title: `${r.sourcePattern.metric} - ${r.reward}`,
+						targetName: r.sourcePattern.metric
+					};
+				});
+				fs.writeFileSync(
+					'dashboard.json',
+					JSON.stringify(generateDashboard(dashboardOptions))
+				);
+				break;
 
 	    default:
 	        helpMsg();
@@ -157,7 +221,7 @@ if (options.hasOwnProperty("function")){
 }
 
 /* node dist/cli.js correlation --metric1 IN.stb-sim.dean.RequestTiming.count --metric2 "IN.stb-sim.dean.RequestTiming.count" \
---m1_start 17:00_20160921 --m1_end 18:00_20160921 
+--m1_start 17:00_20160921 --m1_end 18:00_20160921
 
 node dist/cli.js deviation --metric1 IN.stb-sim.dean.RequestTiming.count --m1_start 17:00_20160921 --m1_end 18:00_20160921 -d 3
 
