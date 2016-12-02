@@ -36,6 +36,7 @@ if (!options.hasOwnProperty("m2_end")){
 	options.m2_end = options.m1_end 
 }
 
+
 if (options.hasOwnProperty("function")){
 	switch(options.function.toLowerCase()) {
 	    case 'correlation':
@@ -110,7 +111,40 @@ if (options.hasOwnProperty("function")){
 	        break;
 
 	    case 'search':
-	        //do something
+	      //resolve the metrics into their respective datapoints
+	      var render = new RenderAPIAdapter(graphiteURL);
+	      var renderRes1 = render.render({
+	        target: options.metric1,
+	        format: 'json',
+	        from: options.m1_start,
+	        until: options.m1_end,
+	      });
+
+	      //apply the requested function and return the result
+	      var cov = new Covariance(renderRes1);
+
+		  
+	      	function done(){
+	    		var dict = cov.getMetricDict();
+
+				//I am changing the dictionary to an array. I had originally used a javascript object (dictionary) 
+				//because I wanted multiple threads to share it. In retrospect, JS is not designed for that task
+				var top30 = Object.keys(dict).map(function(key) {
+	    			return [key, dict[key]];
+				});
+
+				//the strucure is 
+				top30.sort(function(first, second) {
+	    			return second[1][0] - first[1][0];
+				});
+
+				console.log(top30.slice(0, 30));
+
+			}
+
+			cov.correlationAllMetrics( ()=> done() );// takes forever (>30 min)
+
+
 	        break;
 
 	    case 'entailment_search':
@@ -125,6 +159,7 @@ if (options.hasOwnProperty("function")){
 /* node dist/cli.js correlation --metric1 IN.stb-sim.dean.RequestTiming.count --metric2 "IN.stb-sim.dean.RequestTiming.count" \
 --m1_start 17:00_20160921 --m1_end 18:00_20160921 
 
+node dist/cli.js deviation --metric1 IN.stb-sim.dean.RequestTiming.count --m1_start 17:00_20160921 --m1_end 18:00_20160921 -d 3
 
 
 */

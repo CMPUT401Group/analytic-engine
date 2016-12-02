@@ -69,6 +69,8 @@ class Covariance extends Pattern {
         return this.metricDict;
     }
 
+
+
     /**
      * @see Pattern.error
      *	this curently requires metrics to be the same timeframe and number of points as the metricTarget
@@ -189,6 +191,7 @@ class Covariance extends Pattern {
 
                     }catch(e){
                         console.log(metricName, result.length, e);
+                        completedMetrics++;
                         self.errorDict[metricName] = e;
                     }
                 }
