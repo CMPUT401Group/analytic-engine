@@ -54,7 +54,12 @@ function helpMsg(){
 		{
 			header: 'Command',
 			content: [
-				{ name: 'entailment_search', summary: 'Given a goal-metric in some time frame searches a list of entailing metrics.' }
+				{ name: 'entailment_search', summary: 'Given a goal-metric in some time frame searches a list of entailing metrics.' },
+				{ name: 'correlation', summary: 'Given 2 metrics with time frames, return how linearly correlated they are' },
+				{ name: 'covariance', summary: 'Given 2 metrics with time frames, return the linear covariance between them' },
+				{ name: 'deviation', summary: 'Given metric and time frame, return the number of deviant points in that span' },
+				{ name: 'search', summary: 'Given a metric and timeframe, correlate all other metrics and output a grafana dashboard of the most correlated' }
+			
 			]
 		},
 		{
@@ -103,6 +108,45 @@ function helpMsg(){
 --goal-metric-time-begin 05:00_20160917 --goal-metric-time-end 12:00_20160917 \
 --iteration-count 10000 \
 --out /tmp/temp-result.json --dashboard-out /tmp/dashboard.json`
+			]
+		},
+
+		{
+			header: 'correlation/covariance',
+			optionList: [
+				{
+					name: 'metric1',
+					description: 'A metric name'
+				},
+				{
+					name: 'metric2',
+					description: 'A metric name'
+				},
+				{
+					name: 'm1_start',
+					description: 'start time for metric1: format hh:mm_YYYYMMDD'
+				},
+				{
+					name: 'm1_end',
+					description: 'end time for metric1: format hh:mm_YYYYMMDD'
+				},
+				{
+					name: 'm2_start',
+					description: 'start time for metric2: format hh:mm_YYYYMMDD'
+				},
+				{
+					name: 'm2_end',
+					description: 'end time for metric2: format hh:mm_YYYYMMDD'
+				}
+			]
+		},
+		{
+			header: 'Deviation',
+			optionList: [
+				{
+					name: 'std_dev',
+					description: 'The number of standard deviations a value must be from the median to consider a point deviant. default: 2'
+				}
 			]
 		}
 	];
