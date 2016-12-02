@@ -151,12 +151,33 @@ if (options.hasOwnProperty("function")){
 	    			return [key, dict[key]];
 				});
 
-				//the strucure is
+
+				//the strucure is [["metricname",[1,2]],...] first element is correlation, second covariance
 				top30.sort(function(first, second) {
 	    			return second[1][0] - first[1][0];
 				});
 
 				console.log(top30.slice(0, 30));
+
+				let timeBeginUTC = moment(options.m1_start, 'hh:mm_YYYYMMDD').format('YYYY-MM-DD HH:mm:ss');
+				let timeEndUTC = moment(options.m1_end, 'hh:mm_YYYYMMDD').format('YYYY-MM-DD HH:mm:ss');
+
+				let dashboardOptions = {
+					title: 'Statistical correlation',
+					from: timeBeginUTC,
+					to: timeEndUTC,
+					rows: []
+				};
+				dashboardOptions.rows = top30.map(r => {
+					return {
+						title: `Correlation: ${r[1][0]} - Covariance: ${r[1][1]}`,
+						targetName: r[0]
+					};
+				});
+				fs.writeFileSync(
+					'dashboard.json',
+					JSON.stringify(generateDashboard(dashboardOptions))
+				);
 
 			}
 

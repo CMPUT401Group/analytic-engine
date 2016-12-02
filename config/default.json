@@ -2,5 +2,5 @@
   "graphiteURL": "http://162.246.157.107",
   "mongodPort": "27017",
   "nodejsPort": "8888",
-  "analytic-engine-rl-cli-path": "/home/jandres/Codes/analytic-engine-rl/build/analytic-engine-rl-cli"
+  "analytic-engine-rl-cli-path": "/home/matt/metricRL/analytic-engine-rl/build/analytic-engine-rl-cli"
 }
