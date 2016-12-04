@@ -96,7 +96,7 @@ function main() {
       var render = new RenderAPIAdapter(graphiteURL);
       var renderRes1 = render.render({
         target: m1,
-        format: 'json',
+e        format: 'json',
         from: start,
         until: end,
       });
@@ -136,6 +136,13 @@ function main() {
               r3:result3
           });
           res.json(jsonstring);
+      }
+      else if (func =='4'){
+        var result4 = renderRes1;
+        var jsonstring = JSON.stringify({
+              r4:renderRes1
+        });
+        res.json(jsonstring);
       }
 
       else res.send("invalid request: function should be correlation, covariance or metricDeviation");
