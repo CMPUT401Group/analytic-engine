@@ -137,7 +137,7 @@ function main() {
           });
           res.json(jsonstring);
       }
-      else if (func =='4'){
+      else if (func =='3'){
         var result4 = renderRes1;
         var jsonstring = JSON.stringify({
               r4:renderRes1
