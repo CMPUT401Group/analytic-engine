@@ -38,13 +38,14 @@ Tests utilize the Jasmine test framework. They should all be placed in _spec/ana
 ## How To:
 
 * Entailment Search:
-
+```bash
 node ./dist/cli.js entailment_search \
 --goal-metric invidi.webapp.localhost_localdomain.request.total_response_time.mean \
 --time-begin 00:00_20160917 --time-end 23:00_20160917 \
 --goal-metric-time-begin 05:00_20160917 --goal-metric-time-end 12:00_20160917 \
 --iteration-count 10000 \
 --out /tmp/temp-result.json --dashboard-out /tmp/dashboard.json
+```
 
 ## CRON TASK
 using the following api call, setting the date and metric parameters to return a list of deviant datapoints is possible. 
