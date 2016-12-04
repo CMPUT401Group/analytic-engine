@@ -96,7 +96,7 @@ function main() {
       var render = new RenderAPIAdapter(graphiteURL);
       var renderRes1 = render.render({
         target: m1,
-e        format: 'json',
+        format: 'json',
         from: start,
         until: end,
       });
