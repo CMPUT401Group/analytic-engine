@@ -139,7 +139,7 @@ function main() {
       }
       else if (func =='3'){
         var result4 = renderRes1;
-        var jsonstring = JSON.stringify(renderRes1.datapoints);
+        var jsonstring = JSON.stringify({renderRes1});
         res.json(jsonstring);
       }
 
