@@ -192,7 +192,7 @@ class Covariance extends Pattern {
                         let cov = self.covariance(result);
                         self.metricDict[metricName] = [cor,cov];
                         completedMetrics++;
-                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics," value Stored: ",self.metricDict[metricName]);
+                        console.log("Completed: ",completedMetrics,"/" ,totalMetrics," Metric: ",metricName," value Stored [Correlation, Covariance]: ",self.metricDict[metricName]);
 
                     }catch(e){
                         console.log(metricName, result.length, e);
