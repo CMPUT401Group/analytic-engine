@@ -200,7 +200,13 @@ if (options.hasOwnProperty("function")){
 	      });
 
 	      //apply the requested function and return the result
-	      var cov = new Covariance(renderRes1);
+	      if (options.hasOwnProperty("normalisation")) {
+	      	var cov = new Covariance(renderRes1, 1);
+	      }
+	      else {
+	      	var cov = new Covariance(renderRes1);
+	      }
+	      
 	      var result;
 	      if (options.hasOwnProperty("normalisation")) {
 	      	result = cov.correlation(renderRes2, 1);
@@ -229,7 +235,12 @@ if (options.hasOwnProperty("function")){
 	      });
 
 	      //apply the requested function and return the result
-	      var cov = new Covariance(renderRes1);
+	      if (options.hasOwnProperty("normalisation")) {
+	      	var cov = new Covariance(renderRes1, 1);
+	      }
+	      else {
+	      	var cov = new Covariance(renderRes1);
+	      }
 	      var result;
 	      if (options.hasOwnProperty("normalisation")) {
 	      	result = cov.covariance(renderRes2, 1);
@@ -277,7 +288,12 @@ if (options.hasOwnProperty("function")){
 	      });
 
 	      //apply the requested function and return the result
-	      var cov = new Covariance(renderRes1);
+	      if (options.hasOwnProperty("normalisation")) {
+	      	var cov = new Covariance(renderRes1, 1);
+	      }
+	      else {
+	      	var cov = new Covariance(renderRes1);
+	      }
 
 
 	      	function done(){
@@ -386,5 +402,8 @@ if (options.hasOwnProperty("function")){
 
 node dist/cli.js deviation --metric1 IN.stb-sim.dean.RequestTiming.count --m1_start 17:00_20160921 --m1_end 18:00_20160921 -d 3
 
+node dist/cli.js covariance --metric1 IN.stb-sim.dean.RequestTiming.count \ 
+--metric2 "invidi.webapp.localhost_localdomain.request.total_response_time.mean" --m1_start 17:00_20160921 \ 
+--m1_end 18:00_20160921 -n
 
 */

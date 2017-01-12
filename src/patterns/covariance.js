@@ -36,10 +36,16 @@ class Covariance extends Pattern {
      *        > metricTarget of values which are to be used for comparison
      *
      */
-	constructor(metricTarget) {
+	constructor(metricTarget, NormFlag=0) {
         super(Covariance.name)
         assert(metricTarget.length ==1, "There must only be a single metric to initialize the class");
         this.cleanNulls(metricTarget[0].datapoints); //change all null values to 0 for later processing in R
+        this.NormFlagSetting = 0;
+
+        if (NormFlag == 1){
+            metricTarget[0].datapoints = Normalize(metricTarget);
+            this.NormFlagSetting = 1;
+        }
 
         //set class attributes
         let dataLength = metricTarget[0].datapoints.length;
@@ -48,6 +54,7 @@ class Covariance extends Pattern {
         this.endTime = (metricTarget[0].datapoints)[dataLength-1][1];
         this.metricDict = {}; 
         this.errorDict = {};
+
     }
 
     /**
@@ -88,8 +95,6 @@ class Covariance extends Pattern {
     	this.cleanNulls(metrics[0].datapoints);
         if (NormFlag == 1){
             metrics[0].datapoints = Normalize(metrics);
-
-
         }
 
         metrics[0].datapoints= this.covInterpP(metrics[0].datapoints);
@@ -171,6 +176,7 @@ class Covariance extends Pattern {
         var totalMetrics = allMetrics.length;
         var completedMetrics = 0;
 
+
         var start = moment.unix(this.getStartTime()).utc().format('HH:mm_YYYYMMDD');
         var end = moment.unix(this.getEndTime()).utc().format('HH:mm_YYYYMMDD');
         var self = this;
@@ -188,8 +194,8 @@ class Covariance extends Pattern {
                 }
                 else{
                     try {
-                        let cor = self.correlation(result);
-                        let cov = self.covariance(result);
+                        let cor = self.correlation(result, self.NormFlagSetting);
+                        let cov = self.covariance(result, self.NormFlagSetting);
                         self.metricDict[metricName] = [cor,cov];
                         completedMetrics++;
                         console.log("Completed: ",completedMetrics,"/" ,totalMetrics," Metric: ",metricName," value Stored [Correlation, Covariance]: ",self.metricDict[metricName]);
